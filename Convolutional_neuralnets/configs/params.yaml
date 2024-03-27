@@ -1,0 +1,41 @@
+#Purpose: Configuration File
+# Author: June
+
+# Parameters: System
+
+system:
+  num_workers: 8
+  gpus:
+    strategy: auto
+    num_devices: 1
+    accelerator: mps
+
+# Parameters: Dataset
+# - type: 0 = MNIST, 1 = CIFAR
+# - augmentations: 0 = off, 1 = on
+# - num_channels: number of image channels (grayscale = 1, RGB = 3)
+# - num_predicted: number of variables the model is predicting
+
+
+dataset:
+  type: 0
+  save: 0
+  augmentations: 1
+  num_predicted: 10
+
+# Parmaters: Path
+
+paths:
+  data: /Users/june/Documents/data 
+  results: /Users/june/Desktop/study/Mentoring/cnn/MNIST_Adam 
+
+# Parameters: Network
+# - arch: 0 = RELU, 1 = TanH, 2 = Sigmoid
+# - optimizer: 0 = SGD, 1 = ADAM, 2 = RMSProp
+
+network:
+  arch: 0
+  optimizer: 1
+  batch_size: 32
+  num_epochs: 100
+  learning_rate: 0.01

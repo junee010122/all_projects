@@ -1,0 +1,36 @@
+
+
+system:
+  gpus:
+    strategy: auto
+    num_devices: 1
+    accelerator: mps
+
+
+# Create: Dataset Parameters
+# - num_samples: number of dataset samples
+
+datasets:
+  show_plots: 0
+  num_workers: 5
+  num_classes: 2
+  num_samples: 500
+  num_features: 2
+
+# Create: Netowrk Parameters
+# - batch_size: number of dataset samples per network observation
+# - learning_rate: amount of allowable gradient change in network
+
+network:
+  type: classification
+    #type: regression
+  batch_size: 32
+  num_epochs: 1
+  learning_rate: 0.005
+  show_eval: 1
+
+# Create: Path Parameters
+# - results: path to results folder
+
+paths:
+  results: /Users/june/Documents/results/NNclass/sanity_check/classification/LR0.005
