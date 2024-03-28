@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
     # 2.1
     W = multiclass_fisher_linear_discriminant(training_set)
-    W = np.expand_dims(np.array([1.0,2.0,-1.5]).T, axis=1)
+    #W = np.expand_dims(np.array([1.0,2.0,-1.5]).T, axis=1)
     
     projected_testing_samples = np.dot(testing_set.samples, W)
     classes = np.unique(testing_set.labels)
