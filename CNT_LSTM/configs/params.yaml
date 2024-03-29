@@ -1,0 +1,31 @@
+
+system:
+  num_workers: 1
+  gpus:
+    strategy: auto
+    num_devices: 1
+    accelerator: mps
+
+paths:
+  data: /Users/june/Documents/results/CNT
+  results: /Users/june/Documents/results/LSTM
+
+dataset:
+  input_seq: 3
+  output_seq: 5
+  resize: 0.1
+
+arch:
+  batch_size: 1
+  learning_rate: 0.005
+  num_epochs: 10
+  teacher_forcing: 1
+
+model:
+  input_size: 160000 # Change it!
+  hidden_size: 128 
+  output_size: 160000
+  num_layers: 1
+  
+
+
