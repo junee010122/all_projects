@@ -63,13 +63,15 @@ def multiclass_fisher_linear_discriminant(training_set):
     overall_mean = get_mean(X)
     
     S_W = np.sum([np.dot((X[y == c] - means[c]).T, (X[y == c] - means[c])) for c in classes], axis=0)
-    S_B = np.sum([len(X[y == c]) * np.dot((means[c] - overall_mean).reshape(-1, 1), (means[c] - overall_mean).reshape(1, -1)) for c in classes], axis=0)
+    S_B = np.sum([len(X[y == c]) * np.dot((means[c] - overall_mean).reshape(-1, 1), 
+                                          (means[c] - overall_mean).reshape(1, -1)) for c in classes], axis=0)
     
     # Solve the generalized eigenvalue problem
     eigvals, eigvecs = np.linalg.eig(np.linalg.inv(S_W).dot(S_B)) 
 
     idx = np.argsort(eigvals)[::-1]
-    W = eigvecs[:, idx[:1]] 
+    W = eigvecs[:, idx[:1]]
+    print(W)
     return W
 
 

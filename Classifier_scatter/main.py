@@ -57,6 +57,7 @@ if __name__ == "__main__":
         mu1 = get_mean(class1)
         mu2 = get_mean(class2)
         W = np.dot(Sw_inv, (mu2 - mu1))
+        print(W)
 
 
         predicted_labels=apply_classifier(projected_data_subspace, mu1, mu2, Sw_inv)
@@ -86,7 +87,7 @@ if __name__ == "__main__":
         mu1 = get_mean(class1)
         mu2 = get_mean(class2)
         W = np.dot(Sw_inv, (mu2 - mu1))
-
+        print(W)
 
         predicted_labels=apply_classifier(projected_data_subspace, mu1, mu2, Sw_inv)
         true_labels = testing_set.labels
@@ -98,8 +99,8 @@ if __name__ == "__main__":
 
 
     # 2.1
-    W = multiclass_fisher_linear_discriminant(training_set)
-    #W = np.expand_dims(np.array([1.0,2.0,-1.5]).T, axis=1)
+    #W = multiclass_fisher_linear_discriminant(training_set)
+    W = np.expand_dims(np.array([1.0,2.0,-1.5]).T, axis=1)
     
     projected_testing_samples = np.dot(testing_set.samples, W)
     classes = np.unique(testing_set.labels)
