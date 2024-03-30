@@ -42,7 +42,7 @@ def run_experiment(params):
     trainer.fit(model=model, train_dataloaders=train_data, val_dataloaders=valid_data)
     
 
-    # Plot results
+    # Plot results - compare predicted vs truth
 
     
 

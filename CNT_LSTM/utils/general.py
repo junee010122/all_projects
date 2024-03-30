@@ -14,8 +14,9 @@ def load_datasets(params):
     
     
     all_files = [ele for ele in os.listdir(path)
-                 if ".png" in ele][:20]
-
+                 if ".png" in ele]
+    all_files = sorted(all_files)
+    
     all_samples = []
     for current_file in tqdm(all_files, desc="Loading"):
         path_file = os.path.join(path, current_file)

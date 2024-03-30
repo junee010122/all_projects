@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import lightning as L
 from torchmetrics import MeanSquaredError, MeanAbsoluteError, R2Score
+from utils.plots import plot_image 
 #from torch.optim.lr_scheduler import CosineAnnealingLR
 
 class LSTM(L.LightningModule):
@@ -46,20 +47,27 @@ class LSTM(L.LightningModule):
         outputs = []
 
         hidden = None
+        from IPython import embed
+        
 
-        for t in range(self.input_seq):
-            lstm_out, hidden = self.lstm(inputs[:, t:t+1, :], hidden)
-            if t == self.input_seq-1: 
-                out = self.fc(lstm_out)
-                outputs.append(out)
+        lstm_out, hidden = self.lstm(inputs, hidden)
+        out = self.fc(lstm_out[:, -1, :])
+        from IPython import embed
+        embed()
+        #for t in range(self.input_seq):
+        #    lstm_out, hidden = self.lstm(inputs[:, t:t+1, :], hidden)
+        #    if t == self.input_seq-1: 
+        #        out = self.fc(lstm_out)
+        #        outputs.append(out)
+
 
 
         for t in range(1, targets.size(1)):  
             if self.teacher_forcing == 1 and self.training and targets is not None:
-                next_input = targets[:, t-1:t, :]
-            else:
                 next_input = outputs[-1] 
 
+            else:
+                next_input = outputs[-1]
   
             lstm_out, hidden = self.lstm(next_input, hidden)
             out = self.fc(lstm_out)
@@ -100,6 +108,8 @@ class LSTM(L.LightningModule):
         x,y = batch
         y_pred = self(x,y)
         loss = self.objective(y_pred, y)
+
+        plot_image(y, y_pred, self.output_seq, (self.output_size, self.output_size)) 
 
         self.log('valid_loss', loss, batch_size = self.batch_size, on_step=True,
                  on_epoch=True, sync_dist= True)
