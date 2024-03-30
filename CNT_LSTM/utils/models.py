@@ -52,8 +52,7 @@ class LSTM(L.LightningModule):
 
         lstm_out, hidden = self.lstm(inputs, hidden)
         out = self.fc(lstm_out[:, -1, :])
-        from IPython import embed
-        embed()
+        
         #for t in range(self.input_seq):
         #    lstm_out, hidden = self.lstm(inputs[:, t:t+1, :], hidden)
         #    if t == self.input_seq-1: 
@@ -64,15 +63,15 @@ class LSTM(L.LightningModule):
 
         for t in range(1, targets.size(1)):  
             if self.teacher_forcing == 1 and self.training and targets is not None:
-                next_input = outputs[-1] 
+                next_input = outputs[-1]
 
             else:
-                next_input = outputs[-1]
+                next_input = inputs[:, t-1:t, :]
   
             lstm_out, hidden = self.lstm(next_input, hidden)
             out = self.fc(lstm_out)
             outputs.append(out)
-
+    
 
         outputs = torch.cat(outputs, dim=1)
         
