@@ -55,9 +55,9 @@ def convert_data(data, params):
         if i>len(data) - out_size - in_size:
             continue
 
-        all_samples.append(data[i:i+in_size])
+        #all_samples.append(data[i:i+in_size])
         all_labels.append(data[i+in_size:i + in_size + out_size])
-
+        all_samples.append(data[i:i+in_size+out_size])
     dataset = Dataset(all_samples, all_labels, params)
 
     total_size = len(dataset)
@@ -66,7 +66,7 @@ def convert_data(data, params):
 
     train_dataset, valid_dataset = random_split(dataset, [train_size, valid_size])
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
    

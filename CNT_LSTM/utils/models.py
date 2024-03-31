@@ -49,32 +49,21 @@ class LSTM(L.LightningModule):
         hidden = None
         from IPython import embed
         
+        lstm_out, hidden = self.lstm(inputs[:,self.input_seq,:], hidden)
+        output = self.fc(lstm_out)
 
-        lstm_out, hidden = self.lstm(inputs, hidden)
-        out = self.fc(lstm_out[:, -1, :])
-        
-        #for t in range(self.input_seq):
-        #    lstm_out, hidden = self.lstm(inputs[:, t:t+1, :], hidden)
-        #    if t == self.input_seq-1: 
-        #        out = self.fc(lstm_out)
-        #        outputs.append(out)
-
-
-
-        for t in range(1, targets.size(1)):  
-            if self.teacher_forcing == 1 and self.training and targets is not None:
-                next_input = outputs[-1]
-
+        for t in range(1, targets.size(1)): 
+            if self.teacher_forcing == 1 and targets is not None:
+                next_input = inputs[:, t+self.input_seq-1:t+self.input_seq, :]
             else:
-                next_input = inputs[:, t-1:t, :]
-  
+                next_input = output
+            next_input = torch.squeeze(next_input, dim=1)
             lstm_out, hidden = self.lstm(next_input, hidden)
+            lstm_out=torch.squeeze(lstm_out, dim=1)
             out = self.fc(lstm_out)
             outputs.append(out)
-    
-
         outputs = torch.cat(outputs, dim=1)
-        
+        embed()
         return outputs
     
     def Emd(self, pred, target):
