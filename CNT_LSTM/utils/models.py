@@ -48,11 +48,11 @@ class LSTM(L.LightningModule):
 
         hidden = None
         from IPython import embed
-        
+        embed()
         lstm_out, hidden = self.lstm(inputs[:,self.input_seq,:], hidden)
         output = self.fc(lstm_out)
 
-        for t in range(1, targets.size(1)): 
+        for t in range(0, targets.size(1)): 
             if self.teacher_forcing == 1 and targets is not None:
                 next_input = inputs[:, t+self.input_seq-1:t+self.input_seq, :]
             else:
@@ -63,7 +63,8 @@ class LSTM(L.LightningModule):
             out = self.fc(lstm_out)
             outputs.append(out)
         outputs = torch.cat(outputs, dim=1)
-        embed()
+        outputs = torch.reshape(outputs, (1,self.output_seq,self.output_size))
+        
         return outputs
     
     def Emd(self, pred, target):
@@ -79,10 +80,11 @@ class LSTM(L.LightningModule):
     def objective(self, preds, labels):
 
         obj = nn.MSELoss()
-
         return obj(preds, labels)
 
     def training_step(self, batch, batch_idx):
+        from IPython import embed
+        
         x, y = batch
         y_pred = self(x, y)
         loss = self.objective(y_pred, y)
