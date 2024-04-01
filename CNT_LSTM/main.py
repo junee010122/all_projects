@@ -23,7 +23,6 @@ def run_experiment(params):
     
     # Load Data
     train_data, valid_data = load_datasets(params)   
-    from IPython import embed
 
     # Create LSTM Model
     model = LSTM(params)

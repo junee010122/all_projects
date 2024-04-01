@@ -48,16 +48,16 @@ class LSTM(L.LightningModule):
 
         hidden = None
         from IPython import embed
-        embed()
-        lstm_out, hidden = self.lstm(inputs[:,self.input_seq,:], hidden)
+        lstm_out, hidden = self.lstm(inputs[:,0:self.input_seq,:], hidden)
         output = self.fc(lstm_out)
-
-        for t in range(0, targets.size(1)): 
+        output = torch.unsqueeze(output[:,-1,:], dim=1)
+    
+        for t in range(self.input_seq, self.input_seq+self.output_seq): 
             if self.teacher_forcing == 1 and targets is not None:
-                next_input = inputs[:, t+self.input_seq-1:t+self.input_seq, :]
+                next_input = inputs[:, t-1:t, :]
             else:
                 next_input = output
-            next_input = torch.squeeze(next_input, dim=1)
+
             lstm_out, hidden = self.lstm(next_input, hidden)
             lstm_out=torch.squeeze(lstm_out, dim=1)
             out = self.fc(lstm_out)
@@ -97,8 +97,9 @@ class LSTM(L.LightningModule):
     def validation_step(self, batch, batch_idx):
         x,y = batch
         y_pred = self(x,y)
+        from IPython import embed
         loss = self.objective(y_pred, y)
-
+        
         plot_image(y, y_pred, self.output_seq, (self.output_size, self.output_size)) 
 
         self.log('valid_loss', loss, batch_size = self.batch_size, on_step=True,
