@@ -84,13 +84,14 @@ class LSTM(L.LightningModule):
 
     def training_step(self, batch, batch_idx):
         from IPython import embed
-        
+         
         x, y = batch
         y_pred = self(x, y)
         loss = self.objective(y_pred, y)
 
         self.log('train_loss', loss, batch_size = self.batch_size, on_step=True,
                  on_epoch=True, sync_dist= True)
+        embed()
 
         return loss
 
@@ -105,7 +106,7 @@ class LSTM(L.LightningModule):
         self.log('valid_loss', loss, batch_size = self.batch_size, on_step=True,
                  on_epoch=True, sync_dist= True)
 
-        measures = {"valid_MSE":self.mse, "valid_MAE":self.mae, "valid_EMD": self.Emd}
+        measures = {"valid_MSE":self.mse, "valid_MAE":self.mae}
         for current_key in measures.keys():
             score = measures[current_key](y_pred, y)
             self.log(current_key, score, batch_size=self.batch_size, on_step=True,
