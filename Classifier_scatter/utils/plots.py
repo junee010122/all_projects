@@ -6,12 +6,7 @@ from utils.models import linear_classifier
 
 
 def plot_data(testing_set, true_labels,mu1,mu2,Sw_inv,W):
-    from IPython import embed
-    embed()
-    import numpy as np
-    import matplotlib.pyplot as plt
 
-    # Assuming you have defined testing_set, mu1, mu2
 
     classes = np.unique(testing_set.labels)
     class_samples = {label: [] for label in classes}
@@ -21,35 +16,28 @@ def plot_data(testing_set, true_labels,mu1,mu2,Sw_inv,W):
     class1 = np.asarray(class_samples[1])
     class2 = np.asarray(class_samples[2])
 
-    # Create the plot
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
-    # Define the grid
     x_min, x_max = testing_set.samples[:, 0].min() - 1, testing_set.samples[:, 0].max() + 1
     y_min, y_max = testing_set.samples[:, 1].min() - 1, testing_set.samples[:, 1].max() + 1
     z_min, z_max = testing_set.samples[:, 2].min() - 1, testing_set.samples[:, 2].max() + 1
 
     xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1), np.arange(y_min, y_max, 0.1))
 
-    # Calculate the decision boundary
     W = mu1 - mu2
     midpoint = (mu1 + mu2) / 2
     Z = (-W[0] * xx - W[1] * yy + W.dot(midpoint)) / W[2]
 
-    # Plot the decision boundary
     ax.plot_surface(xx, yy, Z, alpha=0.5, color='gray')
 
-    # Plot the dataset
     ax.scatter(testing_set.samples[:, 0], testing_set.samples[:, 1], testing_set.samples[:, 2], c=true_labels, cmap=plt.cm.coolwarm, s=20, edgecolors='k')
 
-    # Set labels and title
-    ax.set_xlabel('Feature 1')
+      ax.set_xlabel('Feature 1')
     ax.set_ylabel('Feature 2')
     ax.set_zlabel('Feature 3')
     ax.set_title('3D Dataset with Decision Boundary')
 
-    # Show the plot
     plt.show()
 
 def plot_projected(subspace, projected_data, true_labels,Sw_inv):
