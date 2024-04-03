@@ -11,35 +11,29 @@ def plot_image(x, y, y_pred, output_seq, img_dim, input_seq):
     y_reshaped = y.view(-1, output_seq, int(np.sqrt(img_dim[0])), int(np.sqrt(img_dim[1])))
     x_reshaped = x.view(-1, output_seq+input_seq, int(np.sqrt(img_dim[0])), int(np.sqrt(img_dim[1])))
 
-    #x_reshaped = torch.reshape(x,[-1,input_seq+output_seq,img_dim[0],img_dim[1]])
     from IPython import embed
     
     mse = F.mse_loss(y_pred_reshaped, y_reshaped, reduction='mean')
 
-    # Display all images in the sequence
+
     total_cols = max(input_seq+output_seq, output_seq)
     fig, axes = plt.subplots(3, total_cols, figsize=(2 * total_cols, 6))
 
     for i in range(input_seq+output_seq):
-        # Display input image
+
         axes[0, i].imshow(x_reshaped[0, i].cpu().detach().numpy(), cmap='gray')
         axes[0, i].set_title(f'Input Image {i + 1}')
         axes[0, i].axis('off')
 
-    # Leave out spaces for the difference
     diff = input_seq+output_seq - output_seq
     for i in range(diff, total_cols):
-        # Display ground truth image
         axes[1, i].imshow(y_reshaped[0, i - diff].cpu().detach().numpy(), cmap='gray')
         axes[1, i].set_title(f'True Image {i - diff + 1}')
         axes[1, i].axis('off')
 
-        # Display predicted image
         axes[2, i].imshow(y_pred_reshaped[0, i - diff].cpu().detach().numpy(), cmap='gray')
         axes[2, i].set_title(f'Predicted Image {i - diff + 1}')
         axes[2, i].axis('off')
-
-    # Leave the first 'diff' columns in the output and prediction rows blank
     for i in range(diff):
         axes[1, i].axis('off')
         axes[2, i].axis('off')

@@ -22,7 +22,7 @@ arch:
   teacher_forcing: 1
 
 model:
-  input_size: 160000 # Change it!
+  input_size: 160000
   hidden_size: 128 
   output_size: 160000
   num_layers: 3

@@ -19,6 +19,7 @@ class LSTM(L.LightningModule):
         self.hidden_size = params["model"]["hidden_size"]
         self.output_size = params["model"]["output_size"]
         self.num_layers = params["model"]["num_layers"]
+        self.hidden=None    
 
         self.input_seq = params["dataset"]["input_seq"]
         self.output_seq = params["dataset"]["output_seq"]
@@ -42,6 +43,14 @@ class LSTM(L.LightningModule):
         self.mae = MeanAbsoluteError()
         self.r_squared = R2Score()
 
+    def on_epoch_start(self):
+        self.hidden = self.init_hidden(self.batch_size)
+    
+    def init_hidden(self, batch_size):
+    
+        return (torch.zeros(self.num_layers, batch_size, self.hidden_size).to(self.device),
+                torch.zeros(self.num_layers, batch_size, self.hidden_size).to(self.device))
+
 
     def forward(self, inputs, targets=None):
         batch_size, sequence_length, _ = inputs.size()
@@ -49,7 +58,7 @@ class LSTM(L.LightningModule):
 
         hidden = None
     
-        lstm_out, hidden = self.lstm(inputs[:,0:self.input_seq,:], hidden)
+        lstm_out, hidden = self.lstm(inputs[:,0:self.input_seq,:], self.hidden)
         output = self.fc(lstm_out)
         output = torch.unsqueeze(output[:,-1,:], dim=1)
     
@@ -84,7 +93,6 @@ class LSTM(L.LightningModule):
         return obj(preds, labels)
 
     def training_step(self, batch, batch_idx):
-        from IPython import embed
          
         x, y = batch
         y_pred = self(x, y)
