@@ -33,7 +33,7 @@ def plot_data(testing_set, true_labels,mu1,mu2,Sw_inv,W):
 
     ax.scatter(testing_set.samples[:, 0], testing_set.samples[:, 1], testing_set.samples[:, 2], c=true_labels, cmap=plt.cm.coolwarm, s=20, edgecolors='k')
 
-      ax.set_xlabel('Feature 1')
+    ax.set_xlabel('Feature 1')
     ax.set_ylabel('Feature 2')
     ax.set_zlabel('Feature 3')
     ax.set_title('3D Dataset with Decision Boundary')

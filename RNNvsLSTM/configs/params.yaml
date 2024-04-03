@@ -1,0 +1,24 @@
+
+paths:
+  results: /Users/june/Documents/results/RNNvsLSTM
+
+dataset:
+  input_seq:
+  output_seq:
+  resize:
+
+arch:
+  batch_size:
+  learning_rate:
+  num_epochs:
+  dropout:
+
+model:
+  """
+  model type 0 for RNN
+             1 for LSTM
+  """
+  model_type: 
+  hidden_size:
+  num_layers:
+  
