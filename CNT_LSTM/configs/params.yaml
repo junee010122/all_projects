@@ -4,7 +4,7 @@ system:
   gpus:
     strategy: auto
     num_devices: 1
-    accelerator: mps
+    accelerator: cpu
 
 paths:
   data: /Users/june/Documents/results/CNT

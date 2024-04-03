@@ -47,7 +47,7 @@ class LSTM(L.LightningModule):
         outputs = []
 
         hidden = None
-        from IPython import embed
+    
         lstm_out, hidden = self.lstm(inputs[:,0:self.input_seq,:], hidden)
         output = self.fc(lstm_out)
         output = torch.unsqueeze(output[:,-1,:], dim=1)
@@ -87,9 +87,17 @@ class LSTM(L.LightningModule):
          
         x, y = batch
         y_pred = self(x, y)
-        loss = self.objective(y_pred, y)
+        losses = [self.objective(y_pred[:, i, :], y[:, i, :]) for i in range(y.shape[1])]
+        
+        for loss in losses:
+            self.manual_backward(loss, retain_graph=True)
 
-        self.log('train_loss', loss, batch_size = self.batch_size, on_step=True,
+        self.optimizers().step()
+        self.optimizers().zero_grad()
+
+        total_loss = torch.mean(torch.stack(losses))
+
+        self.log('train_loss', total_loss, batch_size = self.batch_size, on_step=True,
                  on_epoch=True, sync_dist= True)
         embed()
 
@@ -98,7 +106,7 @@ class LSTM(L.LightningModule):
     def validation_step(self, batch, batch_idx):
         x,y = batch
         y_pred = self(x,y)
-        from IPython import embed
+        
         loss = self.objective(y_pred, y)
         
         plot_image(y, y_pred, self.output_seq, (self.output_size, self.output_size)) 
