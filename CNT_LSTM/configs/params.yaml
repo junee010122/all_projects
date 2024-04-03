@@ -25,7 +25,7 @@ model:
   input_size: 160000 # Change it!
   hidden_size: 128 
   output_size: 160000
-  num_layers: 1
+  num_layers: 3
   
 
 

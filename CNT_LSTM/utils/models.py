@@ -23,6 +23,7 @@ class LSTM(L.LightningModule):
         self.input_seq = params["dataset"]["input_seq"]
         self.output_seq = params["dataset"]["output_seq"]
 
+        self.automatic_optimization = False
 
         # Define Architecture
 
@@ -99,7 +100,6 @@ class LSTM(L.LightningModule):
 
         self.log('train_loss', total_loss, batch_size = self.batch_size, on_step=True,
                  on_epoch=True, sync_dist= True)
-        embed()
 
         return loss
 
@@ -109,7 +109,7 @@ class LSTM(L.LightningModule):
         
         loss = self.objective(y_pred, y)
         
-        plot_image(y, y_pred, self.output_seq, (self.output_size, self.output_size)) 
+        plot_image(x, y, y_pred, self.output_seq, (self.output_size, self.output_size), self.input_seq) 
 
         self.log('valid_loss', loss, batch_size = self.batch_size, on_step=True,
                  on_epoch=True, sync_dist= True)
