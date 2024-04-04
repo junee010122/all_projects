@@ -53,14 +53,20 @@ class LSTM(L.LightningModule):
 
 
     def forward(self, inputs, targets=None):
+
         batch_size, sequence_length, _ = inputs.size()
         outputs = []
 
         hidden = None
     
         lstm_out, hidden = self.lstm(inputs[:,0:self.input_seq,:], self.hidden)
+
+        from IPython import embed
+        embed()
+        exit()
+
         output = self.fc(lstm_out)
-        output = torch.unsqueeze(output[:,-1,:], dim=1)
+        # output = torch.unsqueeze(output[:,-1,:], dim=1)
     
         for t in range(self.input_seq, self.input_seq+self.output_seq): 
             if self.teacher_forcing == 1 and targets is not None:
@@ -68,10 +74,12 @@ class LSTM(L.LightningModule):
             else:
                 next_input = output
 
-            lstm_out, hidden = self.lstm(next_input, hidden)
-            lstm_out=torch.squeeze(lstm_out, dim=1)
-            out = self.fc(lstm_out)
+            # lstm_out, hidden = self.lstm(next_input, hidden)
+            # lstm_out=torch.squeeze(lstm_out, dim=1)
+            # out = self.fc(lstm_out)
+
             outputs.append(out)
+
         outputs = torch.cat(outputs, dim=1)
         outputs = torch.reshape(outputs, (1,self.output_seq,self.output_size))
         

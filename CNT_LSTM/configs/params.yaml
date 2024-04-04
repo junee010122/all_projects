@@ -11,8 +11,8 @@ paths:
   results: /Users/june/Documents/results/LSTM
 
 dataset:
-  input_seq: 3
-  output_seq: 5
+  input_seq: 2
+  output_seq: 6
   resize: 0.1
 
 arch:
