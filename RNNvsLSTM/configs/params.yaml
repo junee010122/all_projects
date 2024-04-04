@@ -3,18 +3,18 @@ paths:
   results: /Users/june/Documents/results/RNNvsLSTM
 
 arch:
-  batch_size:
-  learning_rate:
-  num_epochs:
+  batch_size: 2
+  learning_rate: 0.005
+  num_epochs: 20
 
 model:
   """
   model type 0 for RNN
              1 for LSTM
   """
-  model_type:
-  input_size:
-  output_size:
-  hidden_size:
-  num_layers:
+  model_type: 0
+  input_size: 5
+  output_size: 1
+  hidden_size: 128
+  num_layers: 2
   

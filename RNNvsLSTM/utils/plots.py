@@ -44,4 +44,19 @@ class RecurrentNetwork(L.LightningModule):
         out = self.linear(out[:, -1, :])  # Taking the output of the last sequence step
         return out
 
+    def configure_optimizers(self):
+        return torch.optim.Adam(self.parameters(), lr=self.learning_rate)
+    
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        y_pred = self(x)
+        loss = self.objective(y_pred, y)  
+        self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)  
+        return loss  
 
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        y_pred = self(x)
+        loss = self.objective(y_pred, y)
+        self.log('val_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
+        
