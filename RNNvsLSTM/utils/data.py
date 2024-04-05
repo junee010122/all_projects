@@ -10,7 +10,8 @@ class Dataset(torch.utils.data.Dataset):
     def __init__(self, samples, labels, name):
         self.name = name
         self.labels = labels
-        self.samples = samples.astype(np.float32)
+        self.samples = samples.astype(np.float32) 
+
 
     def __len__(self):
         return len(self.samples)
@@ -39,7 +40,7 @@ def load_datasets(train_samples, train_labels, test_samples, test_labels):
     test_dataset = Dataset(test_samples, test_labels, "Test Dataset")
 
     batch_size = 64
-    num_workers = 2
+    num_workers = 5
 
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True,

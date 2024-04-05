@@ -26,7 +26,8 @@ class RecurrentNetwork(L.LightningModule):
 
 
         if self.model_type == 0:
-            self.recurrent_layer = nn.RNN(self.input_size, self.hidden_size, self.num_layers, batch_first=True)
+            # the input size as to be the same as the feature size
+            self.recurrent_layer = nn.RNN(590, self.hidden_size, self.num_layers, batch_first=True)
         elif model_type == 1:
             self.recurrent_layer = nn.LSTM(self.input_size, self.hidden_size, self.num_layers, batch_first=True)
        
@@ -42,13 +43,15 @@ class RecurrentNetwork(L.LightningModule):
 
 
     def forward(self, x):
-        if self.model_type == 'LSTM':
+        if self.model_type == 1:
             out, (hn, cn) = self.recurrent_layer(x)
-        elif self.model_type == 'RNN':
+        elif self.model_type == 0:
             out, hn = self.recurrent_layer(x)
 
-
-        out = self.linear(out[:, -1, :])  # Taking the output of the last sequence step
+        from IPython import embed
+        #embed()
+        #out = self.linear(out[:, -1, :])  # Taking the output of the last sequence step
+        out = self.linear(out)
         return out
 
     def objective(self, preds, labels):
@@ -59,17 +62,23 @@ class RecurrentNetwork(L.LightningModule):
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=0.001)
-    
+
     def training_step(self, batch, batch_idx):
+        from IPython import embed
+        embed()
         x, y = batch
-        y_pred = self(x) 
-        loss = self.objective(y_pred, y)  
+        target = y  # Assuming y is a tuple containing input and target tensors, extract the target tensor
+        y_pred = self(x)
+        loss = self.objective(y_pred, target)
         self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)  # Log loss
-        return loss 
+        return loss
+    
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_pred = self(x)
+        from IPython import embed
+        embed()
         loss = self.objective(y_pred, y)
         self.log('val_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
     

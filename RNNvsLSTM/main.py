@@ -20,6 +20,11 @@ def run_experiment(params):
     data_path = params["paths"]["data_path"]
     save_path = params["paths"]["results"]
     labels_path = params["paths"]["labels_path"]
+    num_epochs = params["arch"]["num_epochs"]
+    strategy = params["system"]["gpus"]["strategy"]
+    num_devices = params["system"]["gpus"]["num_devices"]
+    accelerator = params["system"]["gpus"]["accelerator"]
+
     data, labels = preprocess_secom_data(data_path, labels_path)
     
     train_samples, test_samples, train_labels, test_labels = train_test_split(
@@ -30,15 +35,14 @@ def run_experiment(params):
     model = RecurrentNetwork(params)
     lr_monitor = LearningRateMonitor(logging_interval="epoch")
 
-    exp_logger = CSVLogger(save_dir = path)
+    exp_logger = CSVLogger(save_dir = save_path)
     trainer = L.Trainer(callbacks=[lr_monitor],
                         accelerator=accelerator, strategy=strategy,
                         devices=num_devices, max_epochs=num_epochs,
                         log_every_n_steps=1, logger=exp_logger)
 
     model.train()
-    trainer.fit(model=model, train_dataloaders=train_data, val_dataloaders=valid_data)
-
+    trainer.fit(model=model, train_dataloaders=datasets['train'], val_dataloaders=datasets['test'])
 
 
 if __name__ == "__main__":
