@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import lightning as L
+from torchmetrics import MeanSquaredError, MeanAbsoluteError, R2Score
+
 
 class RecurrentNetwork(L.LightningModule):
     
@@ -24,9 +26,9 @@ class RecurrentNetwork(L.LightningModule):
 
 
         if self.model_type == 0:
-            self.recurrent_layer = nn.RNN(input_size, hidden_size, num_layers, batch_first=True)
+            self.recurrent_layer = nn.RNN(self.input_size, self.hidden_size, self.num_layers, batch_first=True)
         elif model_type == 1:
-            self.recurrent_layer = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+            self.recurrent_layer = nn.LSTM(self.input_size, self.hidden_size, self.num_layers, batch_first=True)
        
         self.linear = nn.Linear(self.hidden_size, self.output_size)
     

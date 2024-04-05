@@ -5,15 +5,39 @@ import torch
 import pickle
 import os
 
+from lightning.pytorch.loggers import CSVLogger
+from lightning.pytorch.callbacks import LearningRateMonitor
+from sklearn.model_selection import train_test_split
+
+from utils.data import preprocess_secom_data, load_datasets
+from utils.general import load_config
+from utils.models import RecurrentNetwork
+
+
 def run_experiment(params):
 
     model_type = params["model"]["model_type"]
+    data_path = params["paths"]["data_path"]
+    save_path = params["paths"]["results"]
+    labels_path = params["paths"]["labels_path"]
+    data, labels = preprocess_secom_data(data_path, labels_path)
+    
+    train_samples, test_samples, train_labels, test_labels = train_test_split(
+        data, labels, test_size=0.2, random_state=42)
 
-    train_data, valid_data = load_datasets(params)
-    if model_type == 0:
-        model = RNN(params)
-    else:
-        model = LSTM(params)
+    datasets = load_datasets(train_samples, train_labels, test_samples, test_labels)
+    from IPython import embed
+    model = RecurrentNetwork(params)
+    lr_monitor = LearningRateMonitor(logging_interval="epoch")
+
+    exp_logger = CSVLogger(save_dir = path)
+    trainer = L.Trainer(callbacks=[lr_monitor],
+                        accelerator=accelerator, strategy=strategy,
+                        devices=num_devices, max_epochs=num_epochs,
+                        log_every_n_steps=1, logger=exp_logger)
+
+    model.train()
+    trainer.fit(model=model, train_dataloaders=train_data, val_dataloaders=valid_data)
 
 
 
