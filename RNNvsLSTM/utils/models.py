@@ -52,8 +52,7 @@ class RecurrentNetwork(L.LightningModule):
             out, (hn, cn) = self.recurrent_layer(x)
         elif self.model_type == 0:
             out, hn = self.recurrent_layer(x)
-        out = self.linear(out[:, -1, :])  # Taking the output of the last sequence step
-        out = self.linear(out.T)
+        out = self.linear(out[:, -1, :])
         return out
 
     def objective(self, preds, labels):
@@ -76,10 +75,12 @@ class RecurrentNetwork(L.LightningModule):
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_pred = self(x)
+        y_pred = y_pred.squeeze()
+    
         loss = self.objective(y_pred, y)
         self.log('val_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
         softmax = torch.nn.Softmax(dim=1)  # considering batch size
-        preds = softmax(preds)
+        preds = softmax(y_pred)
 
         preds = torch.argmax(preds, dim=1)
         measures = {"accuracy": self.accuracy, "f1": self.f1,
