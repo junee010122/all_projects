@@ -29,9 +29,11 @@ def run_experiment(params):
     
     train_samples, test_samples, train_labels, test_labels = train_test_split(
         data, labels, test_size=0.2, random_state=42)
+    
+    train_samples = train_samples.values.reshape((train_samples.shape[0], 1, train_samples.shape[1]))
+    test_samples = test_samples.values.reshape((test_samples.shape[0], 1, test_samples.shape[1]))
 
     datasets = load_datasets(train_samples, train_labels, test_samples, test_labels)
-    from IPython import embed
     model = RecurrentNetwork(params)
     lr_monitor = LearningRateMonitor(logging_interval="epoch")
 

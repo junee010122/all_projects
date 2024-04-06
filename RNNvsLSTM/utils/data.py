@@ -21,16 +21,20 @@ class Dataset(torch.utils.data.Dataset):
 
 def preprocess_secom_data(data_path, labels_path):
 
-    data = pd.read_csv(data_path, header=None, sep=' ')
-    labels = pd.read_csv(labels_path, header=None, usecols=[0])
+    data = pd.read_csv(data_path, sep=' ', header=None)
+    labels = pd.read_csv(labels_path, sep=' ', header=None, usecols=[0])
     
+    feature_names = ['Feature_' + str(i) for i in range(1, data.shape[1] + 1)]
+    data.columns = feature_names
+    labels.columns = ['Outcome']
+    labels = (labels + 1) / 2
 
     imputer = SimpleImputer(missing_values=np.nan, strategy='mean')
-    data_imputed = imputer.fit_transform(data)
+    data_imputed = pd.DataFrame(imputer.fit_transform(data), columns=data.columns)
     
 
     scaler = StandardScaler()
-    data_scaled = scaler.fit_transform(data_imputed)
+    data_scaled = pd.DataFrame(scaler.fit_transform(data_imputed), columns=data_imputed.columns)
     
     return data_scaled, labels.values.flatten()
 
