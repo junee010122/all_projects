@@ -15,6 +15,7 @@ class LSTM(L.LightningModule):
         self.learning_rate = params["arch"]["learning_rate"]
         self.teacher_forcing = params["arch"]["teacher_forcing"]
 
+        self.model_type = params["model"]["type"]
         self.input_size = params["model"]["input_size"]
         self.hidden_size = params["model"]["hidden_size"]
         self.output_size = params["model"]["output_size"]
@@ -28,13 +29,19 @@ class LSTM(L.LightningModule):
 
         # Define Architecture
 
-        self.lstm = nn.LSTM(input_size=self.input_size, 
-                            hidden_size=self.hidden_size, 
-                            num_layers=self.num_layers, 
-                            batch_first=True)
-        self.fc = nn.Linear(self.hidden_size, self.output_size)
+        if self.model_type == 1:
+            self.lstm = nn.LSTM(input_size=self.input_size, 
+                                hidden_size=self.hidden_size, 
+                                num_layers=self.num_layers, 
+                                batch_first=True)
 
+        else:
+            self.rnn = nn.RNN(input_size=self.input_size,
+                              hidden_size=self.hidden_size,
+                              num_layers = self.num_layers,
+                              batch_first = True)
         
+        self.fc = nn.Linear(self.hidden_size, self.output_size)
         self.create_validation_measures()
 
     def create_validation_measures(self):
@@ -62,26 +69,30 @@ class LSTM(L.LightningModule):
         lstm_out, hidden = self.lstm(inputs[:,0:self.input_seq,:], self.hidden)
 
         from IPython import embed
-        embed()
-        exit()
+        #embed()
+        #exit()
 
         output = self.fc(lstm_out)
         # output = torch.unsqueeze(output[:,-1,:], dim=1)
     
         for t in range(self.input_seq, self.input_seq+self.output_seq): 
             if self.teacher_forcing == 1 and targets is not None:
-                next_input = inputs[:, t-1:t, :]
+                next_input = inputs[:, t-1:t-1+self.input_seq, :]
+                lstm_out, hidden = self.lstm(next_input, hidden)
+
             else:
                 next_input = output
 
             # lstm_out, hidden = self.lstm(next_input, hidden)
-            # lstm_out=torch.squeeze(lstm_out, dim=1)
-            # out = self.fc(lstm_out)
+            lstm_out=torch.squeeze(lstm_out, dim=1)
+            out = self.fc(lstm_out)
+            #output = torch.unsqueeze(output[:,-1,:], dim=1)
 
             outputs.append(out)
 
         outputs = torch.cat(outputs, dim=1)
-        outputs = torch.reshape(outputs, (1,self.output_seq,self.output_size))
+        embed()
+        #outputs = torch.reshape(outputs, (1,self.output_seq,self.output_size))
         
         return outputs
     
