@@ -9,7 +9,7 @@ from lightning.pytorch.loggers import CSVLogger
 from lightning.pytorch.callbacks import LearningRateMonitor
 
 from utils.general import load_config, load_datasets
-from utils.models import LSTM
+from utils.models import RECURRENT
 #from utils.plots import make_video
 
 
@@ -32,8 +32,8 @@ def run_experiment(params):
     # Load Data
     train_data, valid_data = load_datasets(params)   
 
-    # Create LSTM Model
-    model = LSTM(params)
+    # Create RECURRENT Model
+    model = RECURRENT(params)
 
     exp_logger = CSVLogger(save_dir=path_save)
     lr_monitor = LearningRateMonitor(logging_interval="epoch")    

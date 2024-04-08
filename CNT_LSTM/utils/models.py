@@ -5,7 +5,7 @@ from torchmetrics import MeanSquaredError, MeanAbsoluteError, R2Score
 from utils.plots import plot_image 
 #from torch.optim.lr_scheduler import CosineAnnealingLR
 
-class LSTM(L.LightningModule):
+class RECURRENT(L.LightningModule):
 
     def __init__(self, params):
         super().__init__()
@@ -65,30 +65,55 @@ class LSTM(L.LightningModule):
         outputs = []
 
         hidden = None
-    
-        lstm_out, hidden = self.lstm(inputs[:,0:self.input_seq,:], hidden)
 
-        output = self.fc(lstm_out)
-        output = torch.unsqueeze(output[:,-1,:], dim=1)
-    
-        for t in range(self.input_seq, self.input_seq+self.output_seq): 
-            if self.teacher_forcing == 1 and targets is not None:
-                next_input = inputs[:, t-1:t-1+self.input_seq, :]
-                lstm_out, hidden = self.lstm(next_input[:,-1,:], hidden)
-
-            else:
-                next_input = output
-
-            lstm_out, hidden = self.lstm(next_input, hidden)
-            lstm_out=torch.squeeze(lstm_out, dim=1)
-            out = self.fc(lstm_out)
+        if self.model_type == 1: 
+            lstm_out, hidden = self.lstm(inputs[:,0:self.input_seq,:], hidden)
+        
+            output = self.fc(lstm_out)
             output = torch.unsqueeze(output[:,-1,:], dim=1)
+    
+            for t in range(self.input_seq, self.input_seq+self.output_seq): 
+                if self.teacher_forcing == 1 and targets is not None:
+                    next_input = inputs[:, t-1:t-1+self.input_seq, :]
+                    lstm_out, hidden = self.lstm(next_input[:,-1,:], hidden)
 
-            outputs.append(out)
+                else:
+                    next_input = output
+
+                lstm_out, hidden = self.lstm(next_input, hidden)
+                lstm_out=torch.squeeze(lstm_out, dim=1)
+                out = self.fc(lstm_out)
+                output = torch.unsqueeze(output[:,-1,:], dim=1)
+
+                outputs.append(out)
         
-        outputs = torch.cat(outputs, dim=1)
-        outputs = torch.reshape(outputs, (1,self.output_seq,self.output_size))
+            outputs = torch.cat(outputs, dim=1)
+            outputs = torch.reshape(outputs, (1,self.output_seq,self.output_size))
         
+        else:
+            rnn_out, hidden = self.rnn(inputs[:,0:self.input_seq,:], hidden)
+
+            output = self.fc(rnn_out)
+            output = torch.unsqueeze(output[:,-1,:], dim=1)
+            
+            for t in range(self.input_seq, self.input_seq+self.output_seq): 
+                if self.teacher_forcing == 1 and targets is not None:
+                    next_input = inputs[:, t-1:t-1+self.input_seq, :]
+                    lstm_out, hidden = self.rnn(next_input[:,-1,:], hidden)
+
+                else:
+                    next_input = output
+
+                lstm_out, hidden = self.rnn(next_input, hidden)
+                lstm_out=torch.squeeze(lstm_out, dim=1)
+                out = self.fc(lstm_out)
+                output = torch.unsqueeze(output[:,-1,:], dim=1)
+
+                outputs.append(out)
+        
+            outputs = torch.cat(outputs, dim=1)
+            outputs = torch.reshape(outputs, (1,self.output_seq,self.output_size))
+
         return outputs
     
     def emd(self, pred, target):
