@@ -7,23 +7,26 @@ system:
     accelerator: cpu
 
 paths:
-  data: /Users/june/Documents/results/CNT
-  results: /Users/june/Documents/results/LSTM
+  data: /Users/june/Documents/data/CNT
+  results:
+    LSTM: /Users/june/Documents/results/RNNvsLSTM/LSTM
+    RNN: /Users/june/Documents/results/RNNvsLSTM/RNN
+
 
 dataset:
-  input_seq: 2
-  output_seq: 6
+  input_seq: 5
+  output_seq: 1
   resize: 0.1
 
 arch:
   batch_size: 1
   learning_rate: 0.005
   num_epochs: 5
-  teacher_forcing: 1
+  teacher_forcing: 0
 
 model:
   # 1 for LSTM 0 for RNN
-  type: 1
+  model_type: 1
   input_size: 160000
   hidden_size: 128 
   output_size: 160000

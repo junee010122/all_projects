@@ -15,12 +15,11 @@ class LSTM(L.LightningModule):
         self.learning_rate = params["arch"]["learning_rate"]
         self.teacher_forcing = params["arch"]["teacher_forcing"]
 
-        self.model_type = params["model"]["type"]
+        self.model_type = params["model"]["model_type"]
         self.input_size = params["model"]["input_size"]
         self.hidden_size = params["model"]["hidden_size"]
         self.output_size = params["model"]["output_size"]
-        self.num_layers = params["model"]["num_layers"]
-        self.hidden=None    
+        self.num_layers = params["model"]["num_layers"] 
 
         self.input_seq = params["dataset"]["input_seq"]
         self.output_seq = params["dataset"]["output_seq"]
@@ -49,14 +48,15 @@ class LSTM(L.LightningModule):
         self.mse = MeanSquaredError()
         self.mae = MeanAbsoluteError()
         self.r_squared = R2Score()
+        
 
-    def on_epoch_start(self):
-        self.hidden = self.init_hidden(self.batch_size)
+    #def on_epoch_start(self):
+    #    self.hidden = self.init_hidden(self.batch_size)
     
-    def init_hidden(self, batch_size):
+    #def init_hidden(self, batch_size):
     
-        return (torch.zeros(self.num_layers, batch_size, self.hidden_size).to(self.device),
-                torch.zeros(self.num_layers, batch_size, self.hidden_size).to(self.device))
+    #    return (torch.zeros(self.num_layers, batch_size, self.hidden_size).to(self.device),
+    #            torch.zeros(self.num_layers, batch_size, self.hidden_size).to(self.device))
 
 
     def forward(self, inputs, targets=None):
@@ -66,37 +66,32 @@ class LSTM(L.LightningModule):
 
         hidden = None
     
-        lstm_out, hidden = self.lstm(inputs[:,0:self.input_seq,:], self.hidden)
-
-        from IPython import embed
-        #embed()
-        #exit()
+        lstm_out, hidden = self.lstm(inputs[:,0:self.input_seq,:], hidden)
 
         output = self.fc(lstm_out)
-        # output = torch.unsqueeze(output[:,-1,:], dim=1)
+        output = torch.unsqueeze(output[:,-1,:], dim=1)
     
         for t in range(self.input_seq, self.input_seq+self.output_seq): 
             if self.teacher_forcing == 1 and targets is not None:
                 next_input = inputs[:, t-1:t-1+self.input_seq, :]
-                lstm_out, hidden = self.lstm(next_input, hidden)
+                lstm_out, hidden = self.lstm(next_input[:,-1,:], hidden)
 
             else:
                 next_input = output
 
-            # lstm_out, hidden = self.lstm(next_input, hidden)
+            lstm_out, hidden = self.lstm(next_input, hidden)
             lstm_out=torch.squeeze(lstm_out, dim=1)
             out = self.fc(lstm_out)
-            #output = torch.unsqueeze(output[:,-1,:], dim=1)
+            output = torch.unsqueeze(output[:,-1,:], dim=1)
 
             outputs.append(out)
-
+        
         outputs = torch.cat(outputs, dim=1)
-        embed()
-        #outputs = torch.reshape(outputs, (1,self.output_seq,self.output_size))
+        outputs = torch.reshape(outputs, (1,self.output_seq,self.output_size))
         
         return outputs
     
-    def Emd(self, pred, target):
+    def emd(self, pred, target):
         pred = pred / pred.sum(axis=1, keepdims=True)
         target = target / target.sum(axis=1, keepdims=True)
     
@@ -141,7 +136,7 @@ class LSTM(L.LightningModule):
         self.log('valid_loss', loss, batch_size = self.batch_size, on_step=True,
                  on_epoch=True, sync_dist= True)
 
-        measures = {"valid_MSE":self.mse, "valid_MAE":self.mae}
+        measures = {"valid_MSE":self.mse, "valid_MAE":self.mae, "valid_emd":self.emd}
         for current_key in measures.keys():
             score = measures[current_key](y_pred, y)
             self.log(current_key, score, batch_size=self.batch_size, on_step=True,

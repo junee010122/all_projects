@@ -15,11 +15,19 @@ from utils.models import LSTM
 
 def run_experiment(params):
 
+
+    model_type = params["model"]["model_type"]
     path_save = params["paths"]["results"]
     num_epochs = params["arch"]["num_epochs"]
     strategy = params["system"]["gpus"]["strategy"]
     num_devices = params["system"]["gpus"]["num_devices"]
     accelerator = params["system"]["gpus"]["accelerator"]
+
+    if model_type == 1:
+        path_save = params["paths"]["results"]["LSTM"]
+    else:
+        path_save = params["paths"]["results"]["RNN"]
+        
     
     # Load Data
     train_data, valid_data = load_datasets(params)   
