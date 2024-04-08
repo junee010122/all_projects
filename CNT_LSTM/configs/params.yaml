@@ -21,7 +21,7 @@ dataset:
 arch:
   batch_size: 1
   learning_rate: 0.005
-  num_epochs: 5
+  num_epochs: 3
   teacher_forcing: 0
 
 model:
