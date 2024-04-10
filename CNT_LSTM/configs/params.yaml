@@ -15,7 +15,7 @@ paths:
 
 dataset:
   input_seq: 5
-  output_seq: 1
+  output_seq: 3
   resize: 0.1
 
 arch:
@@ -26,7 +26,7 @@ arch:
 
 model:
   # 1 for LSTM 0 for RNN
-  model_type: 0
+  model_type: 1
   input_size: 160000
   hidden_size: 128 
   output_size: 160000
