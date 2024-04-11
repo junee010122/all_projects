@@ -1,8 +1,12 @@
 import torch
 import torch.nn as nn
 import lightning as L
+import numpy as np
 from torchmetrics import MeanSquaredError, MeanAbsoluteError, R2Score
-from utils.plots import plot_image 
+from lightning.pytorch.loggers import CSVLogger,TensorBoardLogger
+
+from utils.plots import plot_image
+import torchvision
 #from torch.optim.lr_scheduler import CosineAnnealingLR
 
 class RECURRENT(L.LightningModule):
@@ -148,9 +152,29 @@ class RECURRENT(L.LightningModule):
         self.optimizers().zero_grad()
 
         total_loss = torch.mean(torch.stack(losses))
-
+        from IPython import embed
         self.log('train_loss', total_loss, batch_size = self.batch_size, on_step=True,
                  on_epoch=True, sync_dist= True)
+
+        log_output = y_pred.view(self.batch_size, self.output_seq, int(np.sqrt(self.output_size)), int(np.sqrt(self.output_size)))
+        tensorboard_logger = next((logger for logger in self.loggers if isinstance(logger, TensorBoardLogger)), None)
+        if tensorboard_logger:
+            for i in range(self.output_seq):
+                img = log_output[:, i, :, :].unsqueeze(1)  # Add a channel dimension
+                img_grid = torchvision.utils.make_grid(img, normalize=True, scale_each=True)
+                tensorboard_logger.experiment.add_image(f'output_image_{i}', img_grid, self.global_step)
+
+        
+        #if self.logger:
+        #    for i in range(self.output_seq):
+        #        img = log_output[:, i, :, :].unsqueeze(1)  # Add a channel dimension
+        #        img_grid = torchvision.utils.make_grid(img, normalize=True, scale_each=True)
+        #        self.logger.experiment.add_image(f'output_image_{i}', img_grid, self.global_step)
+
+        #if self.logger:
+        #    img_grid = torchvision.utils.make_grid(log_output, normalize=False, scale_each=False)
+        #    self.logger.experiment.add_image('output_images', img_grid, self.global_step)
+
 
         return loss
 
