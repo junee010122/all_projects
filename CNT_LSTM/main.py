@@ -40,8 +40,8 @@ def run_experiment(params):
     
     model = RECURRENT(params)
 
-    from IPython import embed
-    embed()
+    #from IPython import embed
+    #cembed()
     
     exp_logger = CSVLogger(save_dir=path_save)
     lr_monitor = LearningRateMonitor(logging_interval="epoch")    
