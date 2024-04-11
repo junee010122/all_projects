@@ -12,9 +12,8 @@ def plot_image(x, y, y_pred, output_seq, img_dim, input_seq):
     x_reshaped = x.view(-1, output_seq+input_seq, int(np.sqrt(img_dim[0])), int(np.sqrt(img_dim[1])))
 
     from IPython import embed
-    
-    mse = F.mse_loss(y_pred_reshaped, y_reshaped, reduction='mean')
-
+     
+    #mse = F.mse_loss(y_pred_reshaped, y_reshaped, reduction='mean')
 
     total_cols = max(input_seq+output_seq, output_seq)
     fig, axes = plt.subplots(3, total_cols, figsize=(2 * total_cols, 6))
@@ -39,7 +38,8 @@ def plot_image(x, y, y_pred, output_seq, img_dim, input_seq):
         axes[2, i].axis('off')
 
     plt.tight_layout()
-    plt.show()
+    #embed()
+    #plt.show()
 
 
 def plot_image2(y, y_pred, output_seq, img_dim):
