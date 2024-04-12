@@ -157,12 +157,12 @@ class RECURRENT(L.LightningModule):
                  on_epoch=True, sync_dist= True)
 
         log_output = y_pred.view(self.batch_size, self.output_seq, int(np.sqrt(self.output_size)), int(np.sqrt(self.output_size)))
-        tensorboard_logger = next((logger for logger in self.loggers if isinstance(logger, TensorBoardLogger)), None)
-        if tensorboard_logger:
-            for i in range(self.output_seq):
-                img = log_output[:, i, :, :].unsqueeze(1)  # Add a channel dimension
-                img_grid = torchvision.utils.make_grid(img, normalize=True, scale_each=True)
-                tensorboard_logger.experiment.add_image(f'output_image_{i}', img_grid, self.global_step)
+        #tensorboard_logger = next((logger for logger in self.loggers if isinstance(logger, TensorBoardLogger)), None)
+        #if tensorboard_logger:
+        #    for i in range(self.output_seq):
+        #        img = log_output[:, i, :, :].unsqueeze(1)  # Add a channel dimension
+        #        img_grid = torchvision.utils.make_grid(img, normalize=True, scale_each=True)
+        #        tensorboard_logger.experiment.add_image(f'output_image_{i}', img_grid, self.global_step)
 
         
         #if self.logger:

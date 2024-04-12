@@ -4,12 +4,19 @@ import numpy as np
 import datetime
 import torch.nn.functional as F
 import torch
+import os
+import datetime
 
 plt.style.use("ggplot")
 def plot_image(x, y, y_pred, output_seq, img_dim, input_seq):
     y_pred_reshaped = y_pred.view(-1, output_seq, int(np.sqrt(img_dim[0])), int(np.sqrt(img_dim[1])))
     y_reshaped = y.view(-1, output_seq, int(np.sqrt(img_dim[0])), int(np.sqrt(img_dim[1])))
     x_reshaped = x.view(-1, output_seq+input_seq, int(np.sqrt(img_dim[0])), int(np.sqrt(img_dim[1])))
+
+
+    save_dir = 'output_images'
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
 
     from IPython import embed
      
@@ -62,9 +69,11 @@ def plot_image2(y, y_pred, output_seq, img_dim):
         axes[1, i].imshow(y_pred_reshaped[0, i].cpu().detach().numpy(), cmap='gray')
         axes[1, i].set_title(f'Predicted Image {i+1}')
         axes[1, i].axis('off')
-    
-    plt.tight_layout()
-    plt.show()
+
+    current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    fig_path = os.path.join(save_dir, f'output_figure_{current_time}.png')
+    plt.savefig(fig_path)
+    plt.close(fig)  
     
 def make_video():
     pass
