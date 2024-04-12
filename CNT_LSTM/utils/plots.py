@@ -44,7 +44,12 @@ def plot_image(x, y, y_pred, output_seq, img_dim, input_seq):
         axes[1, i].axis('off')
         axes[2, i].axis('off')
 
-    plt.tight_layout()
+    current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    fig_path = os.path.join(save_dir, f'output_figure_{current_time}.png')
+    plt.savefig(fig_path)
+    plt.close(fig)
+
+    #plt.tight_layout()
     #embed()
     #plt.show()
 
