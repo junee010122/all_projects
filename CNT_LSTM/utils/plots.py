@@ -49,10 +49,6 @@ def plot_image(x, y, y_pred, output_seq, img_dim, input_seq):
     plt.savefig(fig_path)
     plt.close(fig)
 
-    #plt.tight_layout()
-    #embed()
-    #plt.show()
-
 
 def plot_image2(y, y_pred, output_seq, img_dim):
 
