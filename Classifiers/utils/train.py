@@ -1,13 +1,34 @@
 import lightning as L
+import torch
 
 from lightning.pytorch.loggers import CSVLogger
 from lightning.pytorch.callbacks import LearningRateMonitor
+from torchvision import transforms
+from tqdm import tqdm
 
 from utils.data import load_data
 from utils.models import train_sklearn_models
 from sklearn.decomposition import PCA
 
 #from utils.models import Network
+
+def torch_standardize(x):
+
+    desc = "Data must be numpy formatted: [N, H, W, C], where C = 1 or C = 3"
+
+    assert x.shape[-1] in [1, 3], desc
+
+    num_channels = x.shape[-1]
+
+    t = transforms.Compose([transforms.ToTensor(),
+                            transforms.Normalize([0.5] * num_channels,
+                                                 [0.5] * num_channels)])
+
+    x = torch.vstack([t(ele).unsqueeze(dim=0)
+                     for ele in tqdm(x, desc="Processing")])
+
+    return x.permute(0, 2, 3, 1).numpy()
+
 
 def run(params):
 
@@ -21,17 +42,15 @@ def run(params):
     # Load: Datasets
 
     train, valid = load_data(params)
-    
-    data_iterator = iter(train)
-    images, labels = next(data_iterator)
-    images = images.permute(0,2,3,1).numpy()
+    x = torch_standardize(train.dataset.samples)
 
     # Diemnsionality reduction : PCA
-    from IPython import embed
-    images_ready = images.reshape(images.shape[0], -1)
-    model = PCA(n_components=10)
-    embed()
-    output = model.fit_transform(images_ready)
+
+    #images_ready = x.reshape(x.shape[0], -1)
+    #model = PCA(n_components=10)
+    #embed()
+    #output = model.fit_transform(images_ready)
+    
     # Create: Model
     train_sklearn_models(choices, images, labels)
     model = Network(params)
