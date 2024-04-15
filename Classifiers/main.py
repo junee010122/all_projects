@@ -1,5 +1,9 @@
 import sys
 
+import utils.train as train
+
+from utils.general import load_config
+
 
 def experiment(params):
 
@@ -7,6 +11,6 @@ def experiment(params):
 
 if __name__ == "__main__":
 
-    params = load_config(sys.arg)
+    params = load_config(sys.argv)
 
     experiment(params)
