@@ -1,9 +1,7 @@
 import pickle
 
 from tqdm import tqdm
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.neural_network import MLPRegressor
-from sklearn.ensemble import RandomForestRegressor
+
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
@@ -45,7 +43,7 @@ def select_models(choices):
     return all_models
 
 
-def train_sklearn_models(choices, samples, labels):
+def train_sklearn_models(choices, train, valid):
     """
     Purpose:
     - Train machine learning models and save their results
@@ -77,8 +75,9 @@ def train_sklearn_models(choices, samples, labels):
         from IPython import embed
         embed()
         if name == 'LDA':
-            samples = samples.reshape(samples.shape[0],-1)
-            model.fit(train.dataset.samples, train.dataset.labels)
+            train_samples = train.dataset.samples
+            train_samples = train_samples.reshape(train_samples.shape[0],-1)
+            model.fit(train_samples, train.dataset.labels)
 
         # - Calculate training and validation analytics
 

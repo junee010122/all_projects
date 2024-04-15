@@ -52,7 +52,7 @@ def run(params):
     #output = model.fit_transform(images_ready)
     
     # Create: Model
-    train_sklearn_models(choices, images, labels)
+    train_sklearn_models(choices, train, valid)
     model = Network(params)
 
     # Create: Logger
