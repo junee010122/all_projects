@@ -46,10 +46,10 @@ def run(params):
 
     # Diemnsionality reduction : PCA
 
-    #images_ready = x.reshape(x.shape[0], -1)
-    #model = PCA(n_components=10)
+    images_ready = x.reshape(x.shape[0], -1)
+    model = PCA(n_components=10)
     #embed()
-    #output = model.fit_transform(images_ready)
+    output = model.fit_transform(images_ready)
     
     # Create: Model
     train_sklearn_models(choices, train, valid)
@@ -67,7 +67,5 @@ def run(params):
                         accelerator=accelerator, strategy=strategy,
                         devices=num_devices, max_epochs=num_epochs,
                         log_every_n_steps=1, logger=exp_logger)
-
-
 
     trainer.fit(model=model, train_dataloaders=train, val_dataloaders=valid)

@@ -71,19 +71,16 @@ def train_sklearn_models(choices, train, valid):
 
         # - Train curernt model on training dataset
         model = all_models[name]
-        
-        from IPython import embed
-        embed()
-        if name == 'LDA':
-            train_samples = train.dataset.samples
-            train_samples = train_samples.reshape(train_samples.shape[0],-1)
-            model.fit(train_samples, train.dataset.labels)
 
+        train_samples = train.dataset.samples
+        train_samples = train_samples.reshape(train_samples.shape[0],-1)
+        model.fit(train_samples, train.dataset.labels)
         # - Calculate training and validation analytics
+        train_preds = model.predict(train_samples)
+        valid_samples = validation.dataset.samples
+        valid_samples = valid_samples.reshape(valid_samples.shape[0], -1)
+        valid_preds = model.predict(valid_samples)
 
-        #train_preds = model.predict(train.samples)
-        #cvalid_preds = model.predict(valid.samples)
-
-        results = {"train": {}, "valid": {}}
+        #results = {"train": {}, "valid": {}}
 
 
