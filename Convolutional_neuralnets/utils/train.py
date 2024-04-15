@@ -37,6 +37,4 @@ def run(params):
                         log_every_n_steps=1, logger=exp_logger)
 
     # Train: Model
-    from IPython import embed
-    embed()
     trainer.fit(model=model, train_dataloaders=train, val_dataloaders=valid)
