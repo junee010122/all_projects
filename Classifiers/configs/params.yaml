@@ -22,5 +22,5 @@ network:
   learning_rate: 0.01
 
 models:
-  train: 0
+  train: 1
   choices: [0, 1, 2]

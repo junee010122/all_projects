@@ -45,7 +45,7 @@ def select_models(choices):
     return all_models
 
 
-def train_sklearn_models(choices, data):
+def train_sklearn_models(choices, train, valid):
     """
     Purpose:
     - Train machine learning models and save their results
@@ -57,17 +57,13 @@ def train_sklearn_models(choices, data):
     - data (Dataset): machine learning dataset
     """
 
-    # Organize: Data Partitions
-
-    train, valid = data["train"], data["valid"]
-
     # Select: Algorithms
 
     all_models = select_models(choices)
 
     # Train: Algorithms
 
-    print("\nSaving Results To: %s\n" % path)
+    #print("\nSaving Results To: %s\n" % path)
 
     for name in tqdm(all_models.keys(), "Training Models"):
 
@@ -76,9 +72,8 @@ def train_sklearn_models(choices, data):
         #path_save = path + "/%s.pkl" % name
 
         # - Train curernt model on training dataset
-
         model = all_models[name]
-        model.fit(train.samples, train.labels)
+        model.fit(train.dataset.samples, train.dataset.labels)
 
         # - Calculate training and validation analytics
 

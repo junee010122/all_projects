@@ -23,12 +23,10 @@ def run(params):
     
     data_iterator = iter(train)
     images, labels = next(data_iterator)
-
-    # Create: Model
-               
     from IPython import embed
     embed()
-    train_sklearn_models(choices, data)
+    # Create: Model
+    train_sklearn_models(choices, train, valid)
     model = Network(params)
 
     # Create: Logger
