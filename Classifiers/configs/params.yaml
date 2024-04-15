@@ -1,0 +1,17 @@
+
+system:
+  num_workers: 8
+  gpus:
+    strategy: auto
+    num_devices: 1
+    accelerator: mps
+
+dataset:
+  type: 0
+  save: 0
+  augmentations: 1
+
+
+paths:
+  data: /Users/june/Documents/data 
+
