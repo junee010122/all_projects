@@ -45,7 +45,7 @@ def select_models(choices):
     return all_models
 
 
-def train_sklearn_models(choices, train, valid):
+def train_sklearn_models(choices, samples, labels):
     """
     Purpose:
     - Train machine learning models and save their results
@@ -76,13 +76,14 @@ def train_sklearn_models(choices, train, valid):
         
         from IPython import embed
         embed()
-        #if model == 
-        model.fit(train.dataset.samples, train.dataset.labels)
+        if name == 'LDA':
+            samples = samples.reshape(samples.shape[0],-1)
+            model.fit(train.dataset.samples, train.dataset.labels)
 
         # - Calculate training and validation analytics
 
-        train_preds = model.predict(train.samples)
-        valid_preds = model.predict(valid.samples)
+        #train_preds = model.predict(train.samples)
+        #cvalid_preds = model.predict(valid.samples)
 
         results = {"train": {}, "valid": {}}
 

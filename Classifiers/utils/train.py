@@ -5,6 +5,7 @@ from lightning.pytorch.callbacks import LearningRateMonitor
 
 from utils.data import load_data
 from utils.models import train_sklearn_models
+from sklearn.decomposition import PCA
 
 #from utils.models import Network
 
@@ -25,6 +26,12 @@ def run(params):
     images, labels = next(data_iterator)
     images = images.permute(0,2,3,1).numpy()
 
+    # Diemnsionality reduction : PCA
+    from IPython import embed
+    images_ready = images.reshape(images.shape[0], -1)
+    model = PCA(n_components=10)
+    embed()
+    output = model.fit_transform(images_ready)
     # Create: Model
     train_sklearn_models(choices, images, labels)
     model = Network(params)
