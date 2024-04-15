@@ -11,10 +11,8 @@ dataset:
   save: 0
   augmentations: 1
 
-
 paths:
   data: /Users/june/Documents/data 
-
 
 network:
   arch: 0
@@ -22,3 +20,7 @@ network:
   batch_size: 32
   num_epochs: 100
   learning_rate: 0.01
+
+models:
+  train: 0
+  choices: [0, 1, 2]

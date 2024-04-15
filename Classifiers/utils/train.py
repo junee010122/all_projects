@@ -4,6 +4,8 @@ from lightning.pytorch.loggers import CSVLogger
 from lightning.pytorch.callbacks import LearningRateMonitor
 
 from utils.data import load_data
+from utils.models import train_sklearn_models
+
 #from utils.models import Network
 
 def run(params):
@@ -13,6 +15,7 @@ def run(params):
     strategy = params["system"]["gpus"]["strategy"]
     num_devices = params["system"]["gpus"]["num_devices"]
     accelerator = params["system"]["gpus"]["accelerator"]
+    choices = params["models"]["choices"]
 
     # Load: Datasets
 
@@ -21,17 +24,11 @@ def run(params):
     data_iterator = iter(train)
     images, labels = next(data_iterator)
 
-    # Print and inspect the images and labels
-    print("Sample images tensor:", images)
-    print("Sample labels:", labels)
-    print("Min pixel value:", images.min())
-    print("Max pixel value:", images.max())
-
-    # If using IPython to interactively explore the data
-    from IPython import embed
-    embed() 
     # Create: Model
-
+               
+    from IPython import embed
+    embed()
+    train_sklearn_models(choices, data)
     model = Network(params)
 
     # Create: Logger
