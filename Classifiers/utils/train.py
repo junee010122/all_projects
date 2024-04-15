@@ -23,10 +23,10 @@ def run(params):
     
     data_iterator = iter(train)
     images, labels = next(data_iterator)
-    from IPython import embed
-    embed()
+    images = images.permute(0,2,3,1).numpy()
+
     # Create: Model
-    train_sklearn_models(choices, train, valid)
+    train_sklearn_models(choices, images, labels)
     model = Network(params)
 
     # Create: Logger

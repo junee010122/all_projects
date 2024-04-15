@@ -73,6 +73,10 @@ def train_sklearn_models(choices, train, valid):
 
         # - Train curernt model on training dataset
         model = all_models[name]
+        
+        from IPython import embed
+        embed()
+        #if model == 
         model.fit(train.dataset.samples, train.dataset.labels)
 
         # - Calculate training and validation analytics
