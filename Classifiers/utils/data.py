@@ -6,7 +6,9 @@ import torchvision
 from torch.utils.data import DataLoader
 import torch
 from torchvision import transforms
+
 from utils.general import create_folder
+from utils.plots import plot_images
 
 class Dataset:
     def __init__(self, samples, labels, transform=None):
@@ -29,9 +31,13 @@ class Dataset:
     def __len__(self):
         return len(self.samples)
 
-def torch_standardize(x):
+def torch_standardize(x, binarize=False):
+
     desc = "Data must be formatted: [H, W, C], where C = 1 or C = 3"
     assert x.mode in ['RGB', 'L'], desc  # Assuming x is a PIL Image
+
+    if binarize:
+        x = Image.fromarray(np.where(np.array(x) > 0, 255, 0).astype('unit8'))
 
     num_channels = 3 if x.mode == 'RGB' else 1
     transformation = transforms.Compose([
@@ -91,7 +97,11 @@ def load_data(params):
     save_data = params["dataset"]["save"]
     batch_size = params["network"]["batch_size"]
     num_workers = params["system"]["num_workers"]
-    transform = torch_standardize if params["dataset"]["augmentations"] else None
+    binarize = params["dataset"]["binarize"]
+    transform = None
+
+    if params["dataset"]["augmentations"]:
+        transform = lambda x: torch_standardize(x, binarize=binarize)
 
     if choice == 0:
         path = os.path.join(path, "mnist")

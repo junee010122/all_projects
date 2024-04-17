@@ -75,12 +75,31 @@ def train_sklearn_models(choices, train, valid):
         train_samples = train.dataset.samples
         train_samples = train_samples.reshape(train_samples.shape[0],-1)
         model.fit(train_samples, train.dataset.labels)
+
         # - Calculate training and validation analytics
         train_preds = model.predict(train_samples)
         valid_samples = validation.dataset.samples
         valid_samples = valid_samples.reshape(valid_samples.shape[0], -1)
         valid_preds = model.predict(valid_samples)
 
-        #results = {"train": {}, "valid": {}}
+        results = {"train": {}, "valid": {}}
+
+        for m in measures:
+
+            tag, t_measures = comparison(train.labels, train_preds, choice=m)
+            tag, v_measures = comparison(valid.labels, valid_preds, choice=m)
+
+            # - Organize analytics
+
+            results["train"][tag] = t_measures
+            results["valid"][tag] = v_measures
+
+        results = {"name": name, "model": model, "results": results}
+
+        # - Save analytics
+
+        with open(path_save, "wb") as writer:
+            pickle.dump(results, writer)
+
 
 
