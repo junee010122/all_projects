@@ -140,7 +140,7 @@ class RECURRENT(L.LightningModule):
         x, y = batch
         y_pred = self(x, y)
 
-        plot_image(x, y, y_pred, self.output_seq, (self.output_size, self.output_size), self.input_seq) 
+        #plot_image(x, y, y_pred, self.output_seq, (self.output_size, self.output_size), self.input_seq) 
         #from IPython import embed
         #embed()
         losses = [self.objective(y_pred[:, i, :], y[:, i, :]) for i in range(y.shape[1])]
@@ -152,7 +152,7 @@ class RECURRENT(L.LightningModule):
         self.optimizers().zero_grad()
 
         total_loss = torch.mean(torch.stack(losses))
-        from IPython import embed
+
         self.log('train_loss', total_loss, batch_size = self.batch_size, on_step=True,
                  on_epoch=True, sync_dist= True)
 
@@ -181,7 +181,8 @@ class RECURRENT(L.LightningModule):
     def validation_step(self, batch, batch_idx):
         x,y = batch
         y_pred = self(x,y)
-        
+        plot_image(x, y, y_pred, self.output_seq, (self.output_size, self.output_size), self.input_seq) 
+
         loss = self.objective(y_pred, y)
         
         #plot_image(x, y, y_pred, self.output_seq, (self.output_size, self.output_size), self.input_seq) 
