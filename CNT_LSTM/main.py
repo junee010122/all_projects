@@ -37,19 +37,17 @@ def run_experiment(params):
     checkpoint_callback  = ModelCheckpoint(save_top_k=-1,
                                            every_n_epochs=1) 
     model = RECURRENT(params)
-
-    from IPython import embed
-    #embed()
     
     exp_logger = CSVLogger(save_dir=path_save)
-    pred_logger = TensorBoardLogger(save_dir=path_save)
+    #pred_logger = TensorBoardLogger(save_dir=path_save)
     lr_monitor = LearningRateMonitor(logging_interval="epoch")    
 
     # Create Trainer
     trainer = L.Trainer(callbacks=[lr_monitor,checkpoint_callback],
                         accelerator=accelerator, strategy=strategy,
                         devices=num_devices, max_epochs=num_epochs,
-                        log_every_n_steps=1, logger=[exp_logger, pred_logger], default_root_dir=checkpoint_path,)
+                        log_every_n_steps=1, logger=exp_logger, default_root_dir=checkpoint_path)
+                        #log_every_n_steps=1, logger=[exp_logger, pred_logger], default_root_dir=checkpoint_path,)
     
     # Train & Evaluate Model
     model.train()

@@ -5,6 +5,8 @@ from lightning.pytorch.loggers import CSVLogger
 from lightning.pytorch.callbacks import LearningRateMonitor
 from torchvision import transforms
 from tqdm import tqdm
+import threading
+import time
 
 from utils.data import load_data
 from utils.models import train_sklearn_models
@@ -30,9 +32,18 @@ def run(params):
 
     images_ready = train.dataset.samples.reshape(train.dataset.samples.shape[0], -1)
 
-    model = PCA(n_components=3)
+    global spinner_flag
+    spinner_flag = True
+    spinner_thread = threading.Thread(target=spinner, args=("Performing PCA",))
+    spinner_thread.start()
+
+    model = PCA(n_components=100)
     output = model.fit_transform(images_ready)
-    plot_pca_images(images_ready, output, model, num_images=5)
+
+    spinner_flag = False
+    spinner_thread.join()
+
+    # plot_pca_images(images_ready, output, model, num_images=5)
 
     # Create: Model
     train_sklearn_models(choices, train, valid)
@@ -52,3 +63,16 @@ def run(params):
                         log_every_n_steps=1, logger=exp_logger)
 
     trainer.fit(model=model, train_dataloaders=train, val_dataloaders=valid)
+
+
+def spinner(message="Computing"):
+    spinner = tqdm(total=None, desc=message, position=0, leave=True)
+    while True:
+        for cursor in '\\|/-\\|/':
+            # Set spinner message
+            spinner.set_description_str(f"{message} {cursor}")
+            time.sleep(0.1)
+            spinner.refresh()  # update the spinner animation
+        if not spinner_flag:
+            break
+    spinner.close()

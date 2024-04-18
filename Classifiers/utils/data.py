@@ -30,9 +30,11 @@ class Dataset:
 
 def binarize_data(data):
 
-    binarized = (data > 0).astype(np.uint8) * 255
+    binarized = (data > 0).astype(np.uint8)
 
     return binarized
+
+
 
 def load_mnist(path):
     train = torchvision.datasets.MNIST(root=path, train=True, download=True)
@@ -90,13 +92,14 @@ def load_data(params):
         save_dataset(path_save, valid)
 
     orig = train_samples
+
     if binarize:
-        train =binarize_data(train_samples)
+        train = binarize_data(train_samples)
         valid = binarize_data(valid_samples)
         train_dataset = Dataset(train, train_labels)
         valid_dataset = Dataset(valid, valid_labels)
 
-        plot_images(orig, train)
+        # plot_images(orig, train)
     
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, persistent_workers=True)
     valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, persistent_workers=True)
