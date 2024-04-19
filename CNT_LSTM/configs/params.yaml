@@ -28,7 +28,7 @@ model:
   # 1 for LSTM 0 for RNN
   model_type: 1
   input_size: 160000
-  hidden_size: 32
+  hidden_size: 64
   output_size: 160000
   num_layers: 3
   
