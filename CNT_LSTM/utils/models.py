@@ -121,14 +121,17 @@ class RECURRENT(L.LightningModule):
         return outputs
     
     def emd(self, pred, target):
-        pred = pred / pred.sum(axis=1, keepdims=True)
-        target = target / target.sum(axis=1, keepdims=True)
-        from IPython import embed
-        embed()
-        cdf_pred = torch.cumsum(pred, dim=1)
-        cdf_target = torch.cumsum(target, dim=1)
-        emd_loss = torch.sum(torch.abs(cdf_pred - cdf_target), axis=1)
-        emd_loss = emd_loss.mean()
+        # Normalizing the predictions and target to make them proper probability distributions
+        pred = pred / pred.sum(dim=-1, keepdim=True)
+        target = target / target.sum(dim=-1, keepdim=True)
+    
+        # Calculating the cumulative distribution functions (CDFs) for both predictions and target
+        cdf_pred = torch.cumsum(pred, dim=-1)
+        cdf_target = torch.cumsum(target, dim=-1)
+    
+        # Calculating the EMD loss as the mean of the absolute differences between the CDFs
+        emd_loss = torch.mean(torch.abs(cdf_pred - cdf_target))
+    
         return emd_loss
 
     def objective(self, preds, labels):
