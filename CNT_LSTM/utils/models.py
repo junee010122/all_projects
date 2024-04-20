@@ -123,7 +123,8 @@ class RECURRENT(L.LightningModule):
     def emd(self, pred, target):
         pred = pred / pred.sum(axis=1, keepdims=True)
         target = target / target.sum(axis=1, keepdims=True)
-    
+        from IPython import embed
+        embed()
         cdf_pred = torch.cumsum(pred, dim=1)
         cdf_target = torch.cumsum(target, dim=1)
         emd_loss = torch.sum(torch.abs(cdf_pred - cdf_target), axis=1)
