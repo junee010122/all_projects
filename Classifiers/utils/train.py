@@ -44,13 +44,9 @@ def run(params):
     # spinner_thread.join()
     
     plot_pca_images(images_ready, output, model, num_images=5)
-    
-    from IPython import embed
-    embed()
-    exit()
 
 
-    # Create: Model
+    Create: Model
     train_sklearn_models(choices, train, valid)
     model = Network(params)
 

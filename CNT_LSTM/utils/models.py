@@ -185,7 +185,7 @@ class RECURRENT(L.LightningModule):
     def validation_step(self, batch, batch_idx):
         x,y = batch
         y_pred = self(x,y)
-        plot_image(x, y, y_pred, self.output_seq, (self.output_size, self.output_size), self.input_seq) 
+        #plot_image(x, y, y_pred, self.output_seq, (self.output_size, self.output_size), self.input_seq) 
 
         loss = self.objective(y_pred, y)
         
