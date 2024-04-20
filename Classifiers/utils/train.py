@@ -32,18 +32,23 @@ def run(params):
 
     images_ready = train.dataset.samples.reshape(train.dataset.samples.shape[0], -1)
 
-    global spinner_flag
-    spinner_flag = True
-    spinner_thread = threading.Thread(target=spinner, args=("Performing PCA",))
-    spinner_thread.start()
+    # global spinner_flag
+    # spinner_flag = True
+    # spinner_thread = threading.Thread(target=spinner, args=("Performing PCA",))
+    # spinner_thread.start()
 
     model = PCA(n_components=100)
     output = model.fit_transform(images_ready)
 
-    spinner_flag = False
-    spinner_thread.join()
+    # spinner_flag = False
+    # spinner_thread.join()
+    
+    plot_pca_images(images_ready, output, model, num_images=5)
+    
+    from IPython import embed
+    embed()
+    exit()
 
-    # plot_pca_images(images_ready, output, model, num_images=5)
 
     # Create: Model
     train_sklearn_models(choices, train, valid)

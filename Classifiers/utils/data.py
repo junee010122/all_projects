@@ -35,7 +35,6 @@ def binarize_data(data):
     return binarized
 
 
-
 def load_mnist(path):
     train = torchvision.datasets.MNIST(root=path, train=True, download=True)
     valid = torchvision.datasets.MNIST(root=path, train=False, download=True)

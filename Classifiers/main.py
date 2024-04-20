@@ -1,13 +1,17 @@
 import sys
 
+
+import numpy as np
+
+
 import utils.train as train
+
 #import utils.evaluate as evalutate
 
 from utils.general import load_config
 
 
 def experiment(params):
-
 
     train_model = params["models"]["train"]
 
