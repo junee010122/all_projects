@@ -1,11 +1,10 @@
 import numpy as np
 import os
 from PIL import Image
-from tqdm import tqdm
 import torchvision
 from torch.utils.data import DataLoader
-import torch
 from torchvision import transforms
+from sklearn.decomposition import PCA
 
 from utils.general import create_folder
 from utils.plots import plot_images
@@ -16,16 +15,28 @@ class Dataset:
         self.labels = labels
 
     def __getitem__(self, index):
-        sample = self.samples[index]
+        sample = self.samples[index].reshape(28,28)
         label = self.labels[index].astype(np.int32)
-
-        # Convert numpy array to PIL Image for processing
         sample = Image.fromarray(sample)
 
         return sample, label
 
     def __len__(self):
         return len(self.samples)
+
+def apply_pca(train_dataset, valid_dataset, n_components=100):
+    train_samples = np.array([x[0] for x in train_dataset]).reshape(len(train_dataset), -1)
+    valid_samples = np.array([x[0] for x in valid_dataset]).reshape(len(valid_dataset), -1)
+
+    # Apply PCA
+    pca = PCA(n_components=n_components)
+    train_pca = pca.fit_transform(train_samples)
+    valid_pca = pca.transform(valid_samples)
+
+    # Return transformed data as new Dataset instances
+    return Dataset(train_pca, train_dataset.labels), Dataset(valid_pca, valid_dataset.labels)
+
+
 
 
 def binarize_data(data):
@@ -48,10 +59,6 @@ def load_mnist(path):
 
     return train_samples, train_labels, valid_samples, valid_labels
 
-    train_dataset = Dataset(train_samples, train_labels)
-    valid_dataset = Dataset(valid_samples, valid_labels)
-
-    return train_dataset, valid_dataset
 
 #def save_dataset(path, dataset):
 #    print("\nSaving Data To: %s\n" % path)
@@ -77,6 +84,7 @@ def load_data(params):
     num_workers = params["system"]["num_workers"]
     binarize = params["dataset"]["binarize"]
 
+
     if choice == 0:
         path = os.path.join(path, "mnist")
         train_samples, train_labels, valid_samples, valid_labels = load_mnist(path)
@@ -95,14 +103,12 @@ def load_data(params):
     if binarize:
         train = binarize_data(train_samples)
         valid = binarize_data(valid_samples)
-        train_dataset = Dataset(train, train_labels)
-        valid_dataset = Dataset(valid, valid_labels)
+
+    train_dataset = Dataset(train, train_labels)
+    valid_dataset = Dataset(valid, valid_labels)
 
         # plot_images(orig, train)
     
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, persistent_workers=True)
-    valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, persistent_workers=True)
-
-    return train_loader, valid_loader
+    return train_dataset, valid_dataset
 
 

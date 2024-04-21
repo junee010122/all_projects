@@ -2,37 +2,31 @@ import pickle
 
 from tqdm import tqdm
 
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 
+#from utils.measures import comparison
+from sklearn.ensemble import VotingClassifier
 
 def select_models(choices):
-    """
-    Purpose:
-    - Select a set of models for analysis
 
-    Arguments:
-    - choices (list[int]): model indices
-
-    Returns:
-    - (dict[str, any]): selected models
-    """
 
     all_models = {}
 
     for index in choices:
 
         if index == 0:
-            model = LinearDiscriminantAnalysis()
+            model = OneVsRestClassifier(LinearDiscriminantAnalysis())
             name = "LDA"
 
         elif index == 1:
-            model = KNeighborsClassifier()
+            model = OneVsRestClassifier(KNeighborsClassifier())
             name = "KNN"
 
         elif index == 2:
-            model = SVC()
+            model = OneVsRestClassifier(SVC(probability=True))
             name = "SVC"
 
         else:
@@ -43,7 +37,7 @@ def select_models(choices):
     return all_models
 
 
-def train_sklearn_models(choices, train, valid):
+def train_sklearn_models(choices, train, valid, measures, path):
     """
     Purpose:
     - Train machine learning models and save their results
@@ -61,45 +55,63 @@ def train_sklearn_models(choices, train, valid):
 
     # Train: Algorithms
 
-    #print("\nSaving Results To: %s\n" % path)
+    print("\nSaving Results To: %s\n" % path)
 
     for name in tqdm(all_models.keys(), "Training Models"):
 
         # - Update save path
 
-        #path_save = path + "/%s.pkl" % name
+        path_save = path + "/%s.pkl" % name
 
         # - Train curernt model on training dataset
         model = all_models[name]
+        
+        estimators = []
+        for name, model in tqdm(all_models.items(), desc="Training Models"):
+            model.fit(train.samples, train.labels)
+            train_preds = model.predict(train.samples)
+            valid_preds = model.predict(valid.samples)
 
-        train_samples = train.dataset.samples
-        train_samples = train_samples.reshape(train_samples.shape[0],-1)
-        model.fit(train_samples, train.dataset.labels)
+            train_metrics = compute_metrics(train.labels, train_preds)
+            valid_metrics = compute_metrics(valid.labels, valid_preds)
 
-        # - Calculate training and validation analytics
-        train_preds = model.predict(train_samples)
-        valid_samples = validation.dataset.samples
-        valid_samples = valid_samples.reshape(valid_samples.shape[0], -1)
-        valid_preds = model.predict(valid_samples)
+            # Append model to estimators for voting
+            estimators.append((name, model))
 
-        results = {"train": {}, "valid": {}}
+            results = {
+                'train_metrics': train_metrics,
+                'valid_metrics': valid_metrics,
+                'train_preds': train_preds,
+                'valid_preds': valid_preds
+            }
+            path_save = f"{path}/{name}.pkl"
+            with open(path_save, "wb") as writer:
+                pickle.dump(results, writer)
 
-        for m in measures:
+            plot_confusion_matrix(valid.labels, valid_preds, class_names)
+            # Save individual model results
+            estimators.append((name, model))
 
-            tag, t_measures = comparison(train.labels, train_preds, choice=m)
-            tag, v_measures = comparison(valid.labels, valid_preds, choice=m)
+        ensemble = VotingClassifier(estimators=estimators, voting='hard')
+        ensemble.fit(train.samples, train.labels)
+        ensemble_train_preds = ensemble.predict(train.samples)
+        ensemble_valid_preds = ensemble.predict(valid.samples)
 
-            # - Organize analytics
+        # Evaluate ensemble
+        ensemble_train_metrics = compute_metrics(train.labels, ensemble_train_preds)
+        ensemble_valid_metrics = compute_metrics(valid.labels, ensemble_valid_preds)
+        ensemble_results = {
+            'train_metrics': ensemble_train_metrics,
+            'valid_metrics': ensemble_valid_metrics
+        }
 
-            results["train"][tag] = t_measures
-            results["valid"][tag] = v_measures
 
-        results = {"name": name, "model": model, "results": results}
+        ensemble_path = f"{path}/ensemble.pkl"
+        with open(ensemble_path, "wb") as writer:
+            pickle.dump(ensemble_results, writer)
 
-        # - Save analytics
+        print("Models and ensemble trained and evaluated successfully.")
 
-        with open(path_save, "wb") as writer:
-            pickle.dump(results, writer)
 
 
 

@@ -13,18 +13,19 @@ dataset:
   augmentations: 0
 
 paths:
-  data: /Users/june/Documents/data 
+  data: /Users/june/Documents/data
+  results: /users/june/Documents/results/PCA_classifiers
 
 algorithm:
-  n_pca: 10
+  n_pca: 100
 
 network:
   arch: 0
   optimizer: 1
   batch_size: 8
-  num_epochs: 100
   learning_rate: 0.01
 
 models:
   train: 1
+  measures: [0, 1, 2, 3]
   choices: [0, 1, 2]
