@@ -189,7 +189,7 @@ class RECURRENT(L.LightningModule):
 
         loss = self.objective(y_pred, y)
         
-        #plot_image(x, y, y_pred, self.output_seq, (self.output_size, self.output_size), self.input_seq) 
+        plot_image(x, y, y_pred, self.output_seq, (self.output_size, self.output_size), self.input_seq) 
 
         self.log('valid_loss', loss, batch_size = self.batch_size, on_step=True,
                  on_epoch=True, sync_dist= True)

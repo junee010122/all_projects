@@ -34,8 +34,8 @@ def run_experiment(params):
 
     # Create RECURRENT Model
     checkpoint_path = '/Users/june/Documents/results/RNNvsLSTM/LSTM'
-    checkpoint_callback  = ModelCheckpoint(save_top_k=-1,
-                                           every_n_epochs=1) 
+    #checkpoint_callback  = ModelCheckpoint(save_top_k=-1,
+    #                                       every_n_epochs=1) 
     model = RECURRENT(params)
     
     exp_logger = CSVLogger(save_dir=path_save)
@@ -43,7 +43,8 @@ def run_experiment(params):
     lr_monitor = LearningRateMonitor(logging_interval="epoch")    
 
     # Create Trainer
-    trainer = L.Trainer(callbacks=[lr_monitor,checkpoint_callback],
+    #trainer = L.Trainer(callbacks=[lr_monitor,checkpoint_callback],
+    trainer = L.Trainer(callbacks=lr_monitor,
                         accelerator=accelerator, strategy=strategy,
                         devices=num_devices, max_epochs=num_epochs,
                         log_every_n_steps=1, logger=exp_logger, default_root_dir=checkpoint_path)
