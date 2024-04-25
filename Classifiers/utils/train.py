@@ -10,7 +10,7 @@ import threading
 import time
 
 from utils.data import load_data, apply_pca
-from utils.models import train_sklearn_models
+from utils.models2 import train_sklearn_models
 from utils.plots import plot_pca_images
 
 
