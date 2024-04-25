@@ -102,33 +102,34 @@ def train_sklearn_models(choices, train, valid, measures, path):
 
     
     # After training individual models
-    ensemble = VotingClassifier(estimators=estimators, voting='hard')
-    ensemble.fit(train.samples, train.labels)
-    ensemble_train_preds = ensemble.predict(train.samples)
-    ensemble_valid_preds = ensemble.predict(valid.samples)
+    if estimators:
+        ensemble = VotingClassifier(estimators=estimators, voting='hard')
+        ensemble.fit(train.samples, train.labels)
+        ensemble_train_preds = ensemble.predict(train.samples)
+        ensemble_valid_preds = ensemble.predict(valid.samples)
 
-    ensemble_train_report = classification_report(train.labels, ensemble_train_preds, output_dict=True)
-    ensemble_valid_report = classification_report(valid.labels, ensemble_valid_preds, output_dict=True)
+        ensemble_train_report = classification_report(train.labels, ensemble_train_preds, output_dict=True)
+        ensemble_valid_report = classification_report(valid.labels, ensemble_valid_preds, output_dict=True)
 
-    # Evaluate ensemble
-    ensemble_results = {
-        'train_preds': ensemble_train_preds,
-        'valid_preds': ensemble_valid_preds,
-        'train_labels': train.labels,
-        'valid_labels': valid.labels,
-        'train_report': ensemble_train_report,
-        'valid_report': ensemble_valid_report
-    }
+        # Evaluate ensemble
+        ensemble_results = {
+            'train_preds': ensemble_train_preds,
+            'valid_preds': ensemble_valid_preds,
+            'train_labels': train.labels,
+            'valid_labels': valid.labels,
+            'train_report': ensemble_train_report,
+            'valid_report': ensemble_valid_report
+        }
 
-    ensemble_path = f"{path}/ensemble.pkl"
-    with open(ensemble_path, "wb") as writer:
-        pickle.dump(ensemble_results, writer)
+        ensemble_path = f"{path}/ensemble.pkl"
+        with open(ensemble_path, "wb") as writer:
+            pickle.dump(ensemble_results, writer)
 
-    print("Ensemble model trained and evaluated successfully.")
+        print("Ensemble model trained and evaluated successfully.")
 
-    # Optionally plot confusion matrices for ensemble predictions
-    plot_confusion_matrix(train.labels, ensemble_train_preds, class_names)
-    plot_confusion_matrix(valid.labels, ensemble_valid_preds, class_names)
+        # Optionally plot confusion matrices for ensemble predictions
+        plot_confusion_matrix(train.labels, ensemble_train_preds, class_names)
+        plot_confusion_matrix(valid.labels, ensemble_valid_preds, class_names)
 
     print("Models and ensemble trained and evaluated successfully.")
 
