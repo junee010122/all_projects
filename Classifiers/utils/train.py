@@ -10,7 +10,7 @@ import threading
 import time
 
 from utils.data import load_data, apply_pca
-from utils.models3 import train_sklearn_models
+from utils.model import train_sklearn_models
 from utils.plots import plot_pca_images
 
 
@@ -32,9 +32,9 @@ def run(params):
 
     # Diemnsionality reduction : PCA
 
-    train_pca, valid_pca = apply_pca(train, valid)
+    train_pca, valid_pca, pca = apply_pca(train, valid)
     
-    plot_pca_images(train, train_pca, model, num_images=5)
+    plot_pca_images(train, train_pca, pca, num_images=5)
 
     #Create: Model
 

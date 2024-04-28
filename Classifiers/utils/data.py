@@ -34,7 +34,7 @@ def apply_pca(train_dataset, valid_dataset, n_components=100):
     valid_pca = pca.transform(valid_samples)
 
     # Return transformed data as new Dataset instances
-    return Dataset(train_pca, train_dataset.labels), Dataset(valid_pca, valid_dataset.labels)
+    return Dataset(train_pca, train_dataset.labels), Dataset(valid_pca, valid_dataset.labels), pca
 
 
 

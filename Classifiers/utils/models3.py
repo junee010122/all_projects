@@ -15,9 +15,10 @@ def select_models(choices):
     for index in choices:
         if index == 0:
             # LDA
-            param_grid = {'solver': ['svd', 'lsqr', 'eigen'],
-                          'shrinkage': ['auto', None, 0.1, 0.5, 0.9],
-                          'n_components': [None, 1, 2, 3, 4, 5, 10, 20]}
+            param_grid = {'estimator__solver': ['svd', 'lsqr', 'eigen'],
+                          'estimator__shrinkage': ['auto', None, 0.1, 0.5, 0.9],
+                          'estimator__n_components': [None, 1, 2, 3, 4, 5, 10, 20]
+                          }
             model = GridSearchCV(OneVsRestClassifier(LinearDiscriminantAnalysis()), param_grid, cv=5, scoring='accuracy')
             name = "LDA"
         elif index == 1:
