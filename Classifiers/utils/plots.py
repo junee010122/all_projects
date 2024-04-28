@@ -21,7 +21,7 @@ def plot_images(orig, binarized):
         plt.axis('off')
         
     plt.tight_layout()
-    #plt.show()
+    plt.show()
 
 
 def plot_pca_images(X, X_pca, pca, num_images=5):
@@ -38,7 +38,7 @@ def plot_pca_images(X, X_pca, pca, num_images=5):
 
         plt.subplot(2, num_images, i + 1 + num_images)
         plt.imshow(reconstructed_image, cmap='gray')
-        plt.title('PCA (128)')
+        plt.title('PCA')
         plt.axis('off')
 
     plt.tight_layout()

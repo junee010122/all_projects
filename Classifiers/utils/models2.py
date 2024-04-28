@@ -14,7 +14,6 @@ import numpy as np
 from sklearn.ensemble import VotingClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 
-
 def select_models(choices):
 
 
@@ -37,9 +36,6 @@ def select_models(choices):
         else:
             raise NotImplementedError
 
-        all_models[name] = model
-
-    return all_models
 
 def plot_confusion_matrix(labels, preds, class_names):
     cm = confusion_matrix(labels, preds)
@@ -49,7 +45,7 @@ def plot_confusion_matrix(labels, preds, class_names):
     fig.colorbar(cax)
     tick_marks = np.arange(len(class_names))
     ax.set_xticks(tick_marks)
-    ax.set_xticklabels(class_names, rotation=45)
+    ax.set_xticklabels(class_names, rotation=0)
     ax.set_yticks(tick_marks)
     ax.set_yticklabels(class_names)
 
