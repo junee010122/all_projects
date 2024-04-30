@@ -34,25 +34,25 @@ def Discriminant_function(m_dist,dim, cov, prior):
     discriminant_val =-0.5 * (m_dist ** 2) - 0.5 * dim * np.log(2 * np.pi) - 0.5 * np.log(np.linalg.det(cov)) + np.log(prior)
     return discriminant_val
 
-def bayes_decision_rule(test_samples, test_labels, class_means, class_probabilities):
-    covariance_matrices = {}
-    for label in np.unique(test_labels):
-        class_samples = test_samples[test_labels == label]
-        covariance_matrices[label] = get_cov_matrix(class_samples)
+
+def bayes_decision_rule(samples, labels, class_means, class_probabilities):
+    # Compute a single covariance matrix for the whole dataset
+    total_cov_matrix = get_cov_matrix(samples)
     
     discriminant_values = []
-    for label in np.unique(test_labels):
+    for label in np.unique(labels):
         mean = class_means[label]
-        covariance = covariance_matrices[label]
         prior = class_probabilities[label]
         
-        diff = test_samples - mean
-        m_dist = np.sqrt(np.sum(np.dot(diff, np.linalg.inv(covariance)) * diff, axis=1))
+        diff = samples - mean
+        m_dist = np.sqrt(np.sum(np.dot(diff, np.linalg.inv(total_cov_matrix)) * diff, axis=1))
         
-        discriminant_val = Discriminant_function(m_dist, len(mean), covariance, prior)
+        discriminant_val = Discriminant_function(m_dist, len(mean), total_cov_matrix, prior)
         discriminant_values.append(discriminant_val)
     
     predicted_labels = np.argmax(discriminant_values, axis=0)
     
     return predicted_labels
+
+
 

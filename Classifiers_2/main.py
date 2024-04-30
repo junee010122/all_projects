@@ -8,17 +8,18 @@ from utils.tools import *
 def run_experiment(params):
 
     data = load_datasets(params)
-    train_1, train_2, test_1, test_2= data[0], data[1], data[2], data[3]
-    
+    train_1, train_2, test_1, test_2= data[0], data[1], data[2], data[3] 
     # part 1
     priors = params["elements"]["prior"]
-    test_samples = test_1.samples
-    test_labels = test_1.labels
-    class_means = compute_class_means(test_samples, test_labels) # Dictionary mapping class labels to mean vectors
-    class_probabilities = priors  
+    train_list = [train_1, train_2]
+    test_list = [test_1, test_2]
 
-    predicted_labels = bayes_decision_rule(test_samples, test_labels, class_means, class_probabilities)
-    print("Predicted labels:", predicted_labels)
+    for t_set in test_list:
+        test_samples = t_set.samples
+        test_labels = t_set.labels
+        class_means = compute_class_means(test_samples, test_labels)  
+        predicted_labels = bayes_decision_rule(test_samples, test_labels, class_means, priors)
+        print("Predicted labels:", predicted_labels)
     # part 2
 
     # part 3
