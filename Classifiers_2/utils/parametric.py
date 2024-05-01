@@ -97,7 +97,7 @@ def multiclass_fisher_linear_discriminant(training_set):
     eigvals, eigvecs = np.linalg.eig(np.linalg.inv(S_W).dot(S_B)) 
 
     idx = np.argsort(eigvals)[::-1]
-    W = eigvecs[:, idx[:3]]
+    W = eigvecs[:, idx[:2]]
     print(W)
     return W
 
