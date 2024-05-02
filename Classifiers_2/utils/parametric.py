@@ -102,5 +102,16 @@ def multiclass_fisher_linear_discriminant(training_set):
     return W
 
 
+def within_class_scatter_matrix(class1_data, class2_data, class3_data):
+    Sw_class1 = get_cov_matrix(class1_data)
+    Sw_class2 = get_cov_matrix(class2_data)
+    Sw_class3 = get_cov_matrix(class3_data)
+ 
+    return 1/3*Sw_class1.T + 1/3*Sw_class2.T + 1/3*Sw_class3.T
+
+
+
+
+
 
 

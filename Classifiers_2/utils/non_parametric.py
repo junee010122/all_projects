@@ -98,35 +98,23 @@ def classify_parzen_window(train_set, test_set, kernel,h):
     
     return predicted_labels
 
-def train_perceptron(train_data, train_labels, eta):
-    """
-    Train a Perceptron model with a given learning rate.
-    
-    Parameters:
-        train_data (numpy array): Training data.
-        train_labels (numpy array): Labels corresponding to the training data.
-        eta (float): Learning rate.
-        
-    Returns:
-        Perceptron: Trained Perceptron model.
-    """
-    perceptron = Perceptron(eta0=eta, max_iter=1000)  # Set maximum number of iterations
-    perceptron.fit(train_data, train_labels)
-    return perceptron
+def train_perceptron(samples, labels, eta, max_iter=1000):
+    n_samples, n_features = samples.shape
+    weights = np.zeros(n_features)
+    bias = 0
+    for i in range(max_iter):
+        has_converged = True
+        for idx in range(n_samples):
+            if labels[idx] * (np.dot(weights, samples[idx]) + bias) <= 0:
+                weights += eta * labels[idx] * samples[idx]
+                bias += eta * labels[idx]
+                has_converged = False
+        if has_converged:
+            break
+    return weights, bias, i + 1  # Return number of iterations
 
-def evaluate_perceptron(perceptron, test_data, test_labels):
-    """
-    Evaluate a trained Perceptron model on test data.
-    
-    Parameters:
-        perceptron (Perceptron): Trained Perceptron model.
-        test_data (numpy array): Test data.
-        test_labels (numpy array): Labels corresponding to the test data.
-        
-    Returns:
-        float: Classification accuracy.
-    """
-    predicted_labels = perceptron.predict(test_data)
-    accuracy = np.mean(predicted_labels == test_labels)
-    return accuracy
+# Define function to predict labels
+def predict(samples, weights, bias):
+    return np.where(np.dot(samples, weights) + bias > 0, 1, -1)
+
 
