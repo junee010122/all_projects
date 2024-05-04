@@ -60,6 +60,7 @@ def plot_projected(data, labels, class_colors=None):
     plt.show()
     
 def plot_confusion_matrix(labels, preds, class_names, title, path):
+
     cm = confusion_matrix(labels, preds)
     fig, ax = plt.subplots(figsize=(8, 8))
     cax = ax.matshow(cm, cmap=plt.cm.Blues)
@@ -93,6 +94,7 @@ def plot_performance_metrics(test_labels, predicted_labels, title, path):
         'Recall': recall_score(test_labels, predicted_labels, average='macro', zero_division=0),
         'F1 Score': f1_score(test_labels, predicted_labels, average='macro', zero_division=0)
     }
+
     
     # Plotting
     fig, ax = plt.subplots(figsize=(8, 5))  # Adjust size as needed

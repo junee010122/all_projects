@@ -98,23 +98,38 @@ def classify_parzen_window(train_set, test_set, kernel,h):
     
     return predicted_labels
 
-def train_perceptron(samples, labels, eta, max_iter=1000):
+
+def predict_one_vs_all(samples, classifiers):
+    # Compute scores for each classifier
+    scores = [np.dot(samples, weights) + bias for weights, bias in classifiers]
+    # Determine the class with the highest score
+    return np.argmax(scores, axis=0)
+
+def train_perceptron(samples, labels, eta=0.01, max_iter=1000, dynamic_eta=False):
     n_samples, n_features = samples.shape
     weights = np.zeros(n_features)
     bias = 0
-    for i in range(max_iter):
+    for k in range(1, max_iter + 1):
+        if dynamic_eta:
+            current_eta = 1 / np.sqrt(k)  # Dynamic learning rate based on iteration number
+        else:
+            current_eta = eta  # Use constant learning rate
+
         has_converged = True
         for idx in range(n_samples):
             if labels[idx] * (np.dot(weights, samples[idx]) + bias) <= 0:
-                weights += eta * labels[idx] * samples[idx]
-                bias += eta * labels[idx]
+                weights += current_eta * labels[idx] * samples[idx]
+                bias += current_eta * labels[idx]
                 has_converged = False
         if has_converged:
             break
-    return weights, bias, i + 1  # Return number of iterations
+    return weights, bias
 
-# Define function to predict labels
-def predict(samples, weights, bias):
-    return np.where(np.dot(samples, weights) + bias > 0, 1, -1)
-
-
+def train_one_vs_all(samples, labels, eta=0.01, max_iter=1000, dynamic_eta=False):
+    n_classes = len(np.unique(labels))
+    classifiers = []
+    for current_class in range(n_classes):
+        binary_labels = np.where(labels == current_class, 1, -1)  # Convert to binary labels for the current class
+        weights, bias = train_perceptron(samples, binary_labels, eta, max_iter, dynamic_eta)
+        classifiers.append((weights, bias))
+    return classifiers
