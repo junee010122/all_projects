@@ -9,7 +9,7 @@ from lightning.pytorch.loggers import CSVLogger,TensorBoardLogger
 from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 
 from utils.general import load_config, load_datasets
-from utils.models import RECURRENT
+from utils.models2 import RECURRENT
 #from utils.plots import make_video
 
 
