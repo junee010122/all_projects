@@ -38,23 +38,22 @@ class RECURRENT(L.LightningModule):
                                 batch_first=True)
         elif self.model_type == 2:  # CNN-LSTM
             self.cnn = nn.Sequential(
-                nn.Conv1d(in_channels=self.input_size, out_channels=64, kernel_size=3, stride=1, padding=1),
+                nn.Conv2d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=1),
                 nn.ReLU(),
-                nn.MaxPool1d(kernel_size=2, stride=2),
-                nn.Flatten()
+                nn.MaxPool2d(2,2)
             )
-            self.lstm = nn.LSTM(input_size=64,  # Adjusted based on CNN output
+            self.lstm = nn.LSTM(input_size=4*200*200,  # Adjusted based on CNN output
                                 hidden_size=self.hidden_size,
                                 num_layers=self.num_layers,
                                 batch_first=True)
         elif self.model_type == 3:  # CNN-LSTM-Dense
             self.cnn = nn.Sequential(
-                nn.Conv1d(in_channels=self.input_size, out_channels=64, kernel_size=3, stride=1, padding=1),
+                nn.Conv2d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=1),
                 nn.ReLU(),
-                nn.MaxPool1d(kernel_size=2, stride=2),
+                nn.MaxPool2d(2,2),
                 nn.Flatten()
             )
-            self.lstm = nn.LSTM(input_size=64,  # Adjusted based on CNN output
+            self.lstm = nn.LSTM(input_size=4*200*200,  # Adjusted based on CNN output
                                 hidden_size=self.hidden_size,
                                 num_layers=self.num_layers,
                                 batch_first=True)
@@ -81,63 +80,52 @@ class RECURRENT(L.LightningModule):
     def forward(self, inputs, targets=None):
         batch_size, sequence_length, _ = inputs.size()
         outputs = []
-        hidden = None
+        hidden = None# Properly initialize hidden states
 
-        if self.model_type in [2, 3]:  # CNN-LSTM or CNN-LSTM-Dense
-            inputs = inputs.permute(0, 2, 1)  # Adjust shape for Conv1D
-            inputs = self.cnn(inputs)
-            inputs = inputs.view(batch_size, -1, 64)  # Adjust shape for LSTM
+        if self.model_type in [2, 3]:
+            #inputs = inputs.permute(0, 2, 1)
+            #inputs = inputs.transpose(1, 2)
+            #inputs = self.cnn(inputs)
+            #inputs = inputs.view(batch_size, -1, 64)
+            #from IPython import embed
+            #embed()# Adjust shape for LSTM input:w
 
-        if self.model_type == 3:  # CNN-LSTM-Dense
-            lstm_out, hidden = self.lstm(inputs, hidden)
-            lstm_out = self.dense(lstm_out)
-        else:
-            lstm_out, hidden = self.lstm(inputs, hidden)
-
-        output = self.fc(lstm_out[:, -1, :])
-        outputs.append(output.unsqueeze(1))
-        outputs = torch.cat(outputs, dim=1)
-        return outputs
-
-    def forward(self, inputs, targets=None):
-        batch_size, sequence_length, _ = inputs.size()
-        outputs = []
-        hidden = None
-
-        if self.model_type in [2, 3]:  # CNN-LSTM or CNN-LSTM-Dense
-            inputs = inputs.permute(0, 2, 1)  # Adjust shape for Conv1D
-            inputs = self.cnn(inputs)
-            inputs = inputs.view(batch_size, -1, 64)  # Adjust shape for LSTM input
-
-        lstm_out, hidden = self.lstm(inputs, hidden)
+            inputs = inputs.reshape(1,7,400,400)
+            cnn_outputs = []
+            for i in range(7):  # Iterate over each sequence
+                seq_input = inputs[:, i, :, :].unsqueeze(1)  # Unsqueezing to keep the channel dimension
+                cnn_out = self.cnn(seq_input)  # CNN output size: [batch_size, 64, 200, 200] 
+                cnn_out = cnn_out.view(cnn_out.size(0), -1)  # Flatten the spatial dimensions
+                cnn_outputs.append(cnn_out)
+    
+         # Stack all sequence outputs back into a single tensor
+            cnn_out = torch.stack(cnn_outputs, dim=1)
+            inputs = cnn_out
         
-        if self.model_type == 3:  # CNN-LSTM-Dense
-            lstm_out = self.dense(lstm_out)
-
-        output = self.fc(lstm_out[:, -1, :])
-        outputs.append(output.unsqueeze(1))
-
-        # Teacher forcing logic
-        for t in range(1, self.output_seq):
-            if self.teacher_forcing and targets is not None:
+        lstm_out, hidden = self.lstm(inputs[:, 0:self.input_seq, :], hidden)
+        output = self.fc(lstm_out)
+        output = torch.unsqueeze(output[:, -1, :], dim=1)
+    
+    # Loop over the range for output sequence generation
+        for t in range(self.input_seq, self.input_seq + self.output_seq):
+            if self.teacher_forcing == 1 and targets is not None:
                 next_input = targets[:, t-1:t, :]
             else:
                 next_input = output
-
-            if self.model_type in [2, 3]:  # Adjust input shape for CNN
-                next_input = next_input.permute(0, 2, 1)
-                next_input = self.cnn(next_input)
-                next_input = next_input.view(batch_size, -1, 64)
-
+        # Feed the LSTM with either the last output or the real next input
             lstm_out, hidden = self.lstm(next_input, hidden)
-            
-            if self.model_type == 3:  # CNN-LSTM-Dense
+        
+            if self.model_type == 3:  # Apply dense layer in CNN-LSTM-Dense architecture
                 lstm_out = self.dense(lstm_out)
 
-            output = self.fc(lstm_out[:, -1, :])
-            outputs.append(output.unsqueeze(1))
+            lstm_out = torch.squeeze(lstm_out, dim=1)
+            out = self.fc(lstm_out)
+            output = torch.unsqueeze(out, dim=1)
+
+            outputs.append(out)
 
         outputs = torch.cat(outputs, dim=1)
+        outputs = torch.reshape(outputs, (batch_size, self.output_seq, self.output_size))
         return outputs
 
         
