@@ -52,7 +52,7 @@ def train_sklearn_models(train, valid, class_names, path):
         with open(path_save, "wb") as writer:
             pickle.dump(results, writer)
 
-        plot_confusion_matrix(valid.labels, valid_preds, class_names, path, name)
+        #plot_confusion_matrix(valid.labels, valid_preds, class_names, path, name)
 
 def plot_confusion_matrix(labels, preds, class_names, path, model_name):
     cm = confusion_matrix(labels, preds)

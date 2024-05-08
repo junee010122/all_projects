@@ -1,6 +1,17 @@
 import os
 import yaml
 import shutil
+import joblib
+
+
+def load_data(path):
+
+    return joblib.load(path)
+
+
+def save_data(data, path):
+
+    joblib.dump(data, path)
 
 
 def create_folder(path):
@@ -14,6 +25,7 @@ def create_folder(path):
 def load_yaml(argument):
 
     return yaml.load(open(argument), Loader=yaml.FullLoader)
+
 
 def parse_args(all_args):
 

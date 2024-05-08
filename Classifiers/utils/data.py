@@ -107,7 +107,7 @@ def load_data(params):
     train_dataset = Dataset(train, train_labels)
     valid_dataset = Dataset(valid, valid_labels)
 
-        # plot_images(orig, train)
+    #plot_images(orig, train)
     
     return train_dataset, valid_dataset
 

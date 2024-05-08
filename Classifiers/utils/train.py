@@ -42,16 +42,16 @@ def run(params):
     choices = params["models"]["choices"]
 
     
-    train_sklearn_models(choices, train_pca, valid_pca, measures, path_save)
+    train_sklearn_models(choices, train, valid, measures, path_save)
     
 def spinner(message="Computing"):
     spinner = tqdm(total=None, desc=message, position=0, leave=True)
     while True:
         for cursor in '\\|/-\\|/':
-            # Set spinner message
+
             spinner.set_description_str(f"{message} {cursor}")
             time.sleep(0.1)
-            spinner.refresh()  # update the spinner animation
+            spinner.refresh() 
         #if not spinner_flag:
         #    break
     spinner.close()

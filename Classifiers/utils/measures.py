@@ -13,6 +13,7 @@ def compute_metrics(true_labels, predicted_labels, average='macro'):
     return metrics
 
 def plot_confusion_matrix(true_labels, predicted_labels, class_names):
+    
     cm = confusion_matrix(true_labels, predicted_labels)
     plt.figure(figsize=(10, 7))
     sns.heatmap(cm, annot=True, fmt='d', xticklabels=class_names, yticklabels=class_names, cmap='Blues')

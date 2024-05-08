@@ -25,8 +25,10 @@ def run_experiment(params):
 
     if model_type == 1:
         path_save = params["paths"]["results"]["LSTM"]
-    else:
-        path_save = params["paths"]["results"]["RNN"]
+    elif model_type == 2:
+        path_save = params["paths"]["results"]["CNN_LSTM"]
+    else: 
+        path_save = params["paths"]["results"]["dense_CNN_LSTM"]
         
     
     # Load Data

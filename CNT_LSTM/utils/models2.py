@@ -28,32 +28,42 @@ class RECURRENT(L.LightningModule):
         self.input_seq = params["dataset"]["input_seq"]
         self.output_seq = params["dataset"]["output_seq"]
 
+        self.model_type = params["model"]["model_type"]
+        if self.model_type == 1:
+            self.path_save = params["paths"]["results"]["LSTM"]
+        elif self.model_type == 2:
+            self.path_save = params["paths"]["results"]["CNN_LSTM"]
+        else: 
+            self.path_save = params["paths"]["results"]["dense_CNN_LSTM"]
+
+
+
         self.automatic_optimization = False
 
         # Define Architecture
-        if self.model_type == 1:  # Basic LSTM
+        if self.model_type == 1:  
             self.lstm = nn.LSTM(input_size=self.input_size, 
                                 hidden_size=self.hidden_size, 
                                 num_layers=self.num_layers, 
                                 batch_first=True)
-        elif self.model_type == 2:  # CNN-LSTM
+        elif self.model_type == 2:  
             self.cnn = nn.Sequential(
                 nn.Conv2d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=1),
                 nn.ReLU(),
                 nn.MaxPool2d(2,2)
             )
-            self.lstm = nn.LSTM(input_size=4*200*200,  # Adjusted based on CNN output
+            self.lstm = nn.LSTM(input_size=4*200*200,  
                                 hidden_size=self.hidden_size,
                                 num_layers=self.num_layers,
                                 batch_first=True)
-        elif self.model_type == 3:  # CNN-LSTM-Dense
+        elif self.model_type == 3:  
             self.cnn = nn.Sequential(
                 nn.Conv2d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=1),
                 nn.ReLU(),
                 nn.MaxPool2d(2,2),
                 nn.Flatten()
             )
-            self.lstm = nn.LSTM(input_size=4*200*200,  # Adjusted based on CNN output
+            self.lstm = nn.LSTM(input_size=4*200*200, 
                                 hidden_size=self.hidden_size,
                                 num_layers=self.num_layers,
                                 batch_first=True)
@@ -70,35 +80,19 @@ class RECURRENT(L.LightningModule):
 
         
 
-    #def on_epoch_start(self):
-    #    self.hidden = self.init_hidden(self.batch_size)
-    
-    #def init_hidden(self, batch_size):
-    
-    #    return (torch.zeros(self.num_layers, batch_size, self.hidden_size).to(self.device),
-    #            torch.zeros(self.num_layers, batch_size, self.hidden_size).to(self.device))
     def forward(self, inputs, targets=None):
         batch_size, sequence_length, _ = inputs.size()
         outputs = []
-        hidden = None# Properly initialize hidden states
-
+        hidden = None
         if self.model_type in [2, 3]:
-            #inputs = inputs.permute(0, 2, 1)
-            #inputs = inputs.transpose(1, 2)
-            #inputs = self.cnn(inputs)
-            #inputs = inputs.view(batch_size, -1, 64)
-            #from IPython import embed
-            #embed()# Adjust shape for LSTM input:w
-
             inputs = inputs.reshape(1,7,400,400)
             cnn_outputs = []
-            for i in range(7):  # Iterate over each sequence
-                seq_input = inputs[:, i, :, :].unsqueeze(1)  # Unsqueezing to keep the channel dimension
-                cnn_out = self.cnn(seq_input)  # CNN output size: [batch_size, 64, 200, 200] 
-                cnn_out = cnn_out.view(cnn_out.size(0), -1)  # Flatten the spatial dimensions
+            for i in range(7):                  
+                seq_input = inputs[:, i, :, :].unsqueeze(1)                  
+                cnn_out = self.cnn(seq_input)                 
+                cnn_out = cnn_out.view(cnn_out.size(0), -1)                 
                 cnn_outputs.append(cnn_out)
     
-         # Stack all sequence outputs back into a single tensor
             cnn_out = torch.stack(cnn_outputs, dim=1)
             inputs = cnn_out
         
@@ -106,16 +100,14 @@ class RECURRENT(L.LightningModule):
         output = self.fc(lstm_out)
         output = torch.unsqueeze(output[:, -1, :], dim=1)
     
-    # Loop over the range for output sequence generation
         for t in range(self.input_seq, self.input_seq + self.output_seq):
             if self.teacher_forcing == 1 and targets is not None:
                 next_input = targets[:, t-1:t, :]
             else:
                 next_input = output
-        # Feed the LSTM with either the last output or the real next input
             lstm_out, hidden = self.lstm(next_input, hidden)
         
-            if self.model_type == 3:  # Apply dense layer in CNN-LSTM-Dense architecture
+            if self.model_type == 3:                 
                 lstm_out = self.dense(lstm_out)
 
             lstm_out = torch.squeeze(lstm_out, dim=1)
@@ -130,15 +122,10 @@ class RECURRENT(L.LightningModule):
 
         
     def emd(self, pred, target):
-        # Normalizing the predictions and target to make them proper probability distributions
         pred = pred / pred.sum(dim=-1, keepdim=True)
         target = target / target.sum(dim=-1, keepdim=True)
-    
-        # Calculating the cumulative distribution functions (CDFs) for both predictions and target
         cdf_pred = torch.cumsum(pred, dim=-1)
         cdf_target = torch.cumsum(target, dim=-1)
-    
-        # Calculating the EMD loss as the mean of the absolute differences between the CDFs
         emd_loss = torch.mean(torch.abs(cdf_pred - cdf_target))
     
         return emd_loss
@@ -152,10 +139,6 @@ class RECURRENT(L.LightningModule):
          
         x, y = batch
         y_pred = self(x, y)
-
-        #plot_image(x, y, y_pred, self.output_seq, (self.output_size, self.output_size), self.input_seq) 
-        #from IPython import embed
-        #embed()
         losses = [self.objective(y_pred[:, i, :], y[:, i, :]) for i in range(y.shape[1])]
         
         for loss in losses:
@@ -197,8 +180,10 @@ class RECURRENT(L.LightningModule):
         #plot_image(x, y, y_pred, self.output_seq, (self.output_size, self.output_size), self.input_seq) 
 
         loss = self.objective(y_pred, y)
+
         
-        plot_image(x, y, y_pred, self.output_seq, (self.output_size, self.output_size), self.input_seq) 
+        
+        plot_image(x, y, y_pred, self.output_seq, (self.output_size, self.output_size), self.input_seq, self.path_save) 
 
         self.log('valid_loss', loss, batch_size = self.batch_size, on_step=True,
                  on_epoch=True, sync_dist= True)

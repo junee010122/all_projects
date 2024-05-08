@@ -1,0 +1,6 @@
+experiment: 1
+
+paths:
+
+  data: /Users/june/Documents/research/data/end_to_end/mnist/original/ae/test
+  results: /Users/june/Documents/research/results/end_to_end/

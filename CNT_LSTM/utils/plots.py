@@ -8,18 +8,15 @@ import os
 import datetime
 
 plt.style.use("ggplot")
-def plot_image(x, y, y_pred, output_seq, img_dim, input_seq):
+def plot_image(x, y, y_pred, output_seq, img_dim, input_seq, path):
     y_pred_reshaped = y_pred.view(-1, output_seq, int(np.sqrt(img_dim[0])), int(np.sqrt(img_dim[1])))
     y_reshaped = y.view(-1, output_seq, int(np.sqrt(img_dim[0])), int(np.sqrt(img_dim[1])))
     x_reshaped = x.view(-1, output_seq+input_seq, int(np.sqrt(img_dim[0])), int(np.sqrt(img_dim[1])))
 
 
-    save_dir = 'output_images'
+    save_dir = path
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
-
-    from IPython import embed
-     
     #mse = F.mse_loss(y_pred_reshaped, y_reshaped, reduction='mean')
 
     total_cols = max(input_seq+output_seq, output_seq)

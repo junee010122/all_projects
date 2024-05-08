@@ -10,8 +10,8 @@ paths:
   data: /Users/june/Documents/data/CNT
   results:
     LSTM: /Users/june/Documents/results/RNNvsLSTM/LSTM
-    RNN: /Users/june/Documents/results/RNNvsLSTM/RNN
-
+    CNN_LSTM: /Users/june/Documents/results/RNNvsLSTM/CNN_LSTM
+    dense_CNN_LSTM: /Users/june/Documents/results/RNNvsLSTM/dens_CNN_LSTM
 
 dataset:
   input_seq: 5
