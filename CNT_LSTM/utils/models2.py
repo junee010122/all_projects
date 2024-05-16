@@ -3,13 +3,13 @@ import torch.nn as nn
 import lightning as L
 import numpy as np
 from torchmetrics import MeanSquaredError, MeanAbsoluteError, R2Score
-from lightning.pytorch.loggers import CSVLogger,TensorBoardLogger
+from lightning.pytorchloggers import CSVLogger,TensorBoardLogger
 
 from utils.plots import plot_image
 import torchvision
 #from torch.optim.lr_scheduler import CosineAnnealingLR
 
-class RECURRENT(L.LightningModule):
+class recurrent(l.lightningmodule):
 
     def __init__(self, params):
         super().__init__()
@@ -30,60 +30,60 @@ class RECURRENT(L.LightningModule):
 
         self.model_type = params["model"]["model_type"]
         if self.model_type == 1:
-            self.path_save = params["paths"]["results"]["LSTM"]
+            self.path_save = params["paths"]["results"]["lstm"]
         elif self.model_type == 2:
-            self.path_save = params["paths"]["results"]["CNN_LSTM"]
+            self.path_save = params["paths"]["results"]["cnn_lstm"]
         else: 
-            self.path_save = params["paths"]["results"]["dense_CNN_LSTM"]
+            self.path_save = params["paths"]["results"]["dense_cnn_lstm"]
 
 
 
-        self.automatic_optimization = False
+        self.automatic_optimization = false
 
-        # Define Architecture
+        # define architecture
         if self.model_type == 1:  
-            self.lstm = nn.LSTM(input_size=self.input_size, 
+            self.lstm = nn.lstm(input_size=self.input_size, 
                                 hidden_size=self.hidden_size, 
                                 num_layers=self.num_layers, 
-                                batch_first=True)
+                                batch_first=true)
         elif self.model_type == 2:  
-            self.cnn = nn.Sequential(
-                nn.Conv2d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=1),
-                nn.ReLU(),
-                nn.MaxPool2d(2,2)
+            self.cnn = nn.sequential(
+                nn.conv2d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=1),
+                nn.relu(),
+                nn.maxpool2d(2,2)
             )
-            self.lstm = nn.LSTM(input_size=4*200*200,  
+            self.lstm = nn.lstm(input_size=4*200*200,  
                                 hidden_size=self.hidden_size,
                                 num_layers=self.num_layers,
-                                batch_first=True)
+                                batch_first=true)
         elif self.model_type == 3:  
-            self.cnn = nn.Sequential(
-                nn.Conv2d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=1),
-                nn.ReLU(),
-                nn.MaxPool2d(2,2),
-                nn.Flatten()
+            self.cnn = nn.sequential(
+                nn.conv2d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=1),
+                nn.relu(),
+                nn.maxpool2d(2,2),
+                nn.flatten()
             )
-            self.lstm = nn.LSTM(input_size=4*200*200, 
+            self.lstm = nn.lstm(input_size=4*200*200, 
                                 hidden_size=self.hidden_size,
                                 num_layers=self.num_layers,
-                                batch_first=True)
-            self.dense = nn.Linear(self.hidden_size, self.hidden_size)
+                                batch_first=true)
+            self.dense = nn.linear(self.hidden_size, self.hidden_size)
         
-        self.fc = nn.Linear(self.hidden_size, self.output_size)
+        self.fc = nn.linear(self.hidden_size, self.output_size)
         self.create_validation_measures()
         
         
     def create_validation_measures(self):
-        self.mse = MeanSquaredError()
-        self.mae = MeanAbsoluteError()
-        self.r_squared = R2Score()   
+        self.mse = meansquarederror()
+        self.mae = meanabsoluteerror()
+        self.r_squared = r2score()   
 
         
 
-    def forward(self, inputs, targets=None):
+    def forward(self, inputs, targets=none):
         batch_size, sequence_length, _ = inputs.size()
         outputs = []
-        hidden = None
+        hidden = none
         if self.model_type in [2, 3]:
             inputs = inputs.reshape(1,7,400,400)
             cnn_outputs = []
@@ -101,7 +101,7 @@ class RECURRENT(L.LightningModule):
         output = torch.unsqueeze(output[:, -1, :], dim=1)
     
         for t in range(self.input_seq, self.input_seq + self.output_seq):
-            if self.teacher_forcing == 1 and targets is not None:
+            if self.teacher_forcing == 1 and targets is not none:
                 next_input = targets[:, t-1:t, :]
             else:
                 next_input = output
@@ -122,8 +122,8 @@ class RECURRENT(L.LightningModule):
 
         
     def emd(self, pred, target):
-        pred = pred / pred.sum(dim=-1, keepdim=True)
-        target = target / target.sum(dim=-1, keepdim=True)
+        pred = pred / pred.sum(dim=-1, keepdim=true)
+        target = target / target.sum(dim=-1, keepdim=true)
         cdf_pred = torch.cumsum(pred, dim=-1)
         cdf_target = torch.cumsum(target, dim=-1)
         emd_loss = torch.mean(torch.abs(cdf_pred - cdf_target))
@@ -132,7 +132,7 @@ class RECURRENT(L.LightningModule):
 
     def objective(self, preds, labels):
 
-        obj = nn.MSELoss()
+        obj = nn.mseloss()
         return obj(preds, labels)
 
     def training_step(self, batch, batch_idx):
@@ -142,33 +142,33 @@ class RECURRENT(L.LightningModule):
         losses = [self.objective(y_pred[:, i, :], y[:, i, :]) for i in range(y.shape[1])]
         
         for loss in losses:
-            self.manual_backward(loss, retain_graph=True)
+            self.manual_backward(loss, retain_graph=true)
 
         self.optimizers().step()
         self.optimizers().zero_grad()
 
         total_loss = torch.mean(torch.stack(losses))
 
-        self.log('train_loss', total_loss, batch_size = self.batch_size, on_step=True,
-                 on_epoch=True, sync_dist= True)
+        self.log('train_loss', total_loss, batch_size = self.batch_size, on_step=true,
+                 on_epoch=true, sync_dist= true)
 
         log_output = y_pred.view(self.batch_size, self.output_seq, int(np.sqrt(self.output_size)), int(np.sqrt(self.output_size)))
-        #tensorboard_logger = next((logger for logger in self.loggers if isinstance(logger, TensorBoardLogger)), None)
+        #tensorboard_logger = next((logger for logger in self.loggers if isinstance(logger, tensorboardlogger)), none)
         #if tensorboard_logger:
         #    for i in range(self.output_seq):
-        #        img = log_output[:, i, :, :].unsqueeze(1)  # Add a channel dimension
-        #        img_grid = torchvision.utils.make_grid(img, normalize=True, scale_each=True)
+        #        img = log_output[:, i, :, :].unsqueeze(1)  # add a channel dimension
+        #        img_grid = torchvision.utils.make_grid(img, normalize=true, scale_each=true)
         #        tensorboard_logger.experiment.add_image(f'output_image_{i}', img_grid, self.global_step)
 
         
         #if self.logger:
         #    for i in range(self.output_seq):
-        #        img = log_output[:, i, :, :].unsqueeze(1)  # Add a channel dimension
-        #        img_grid = torchvision.utils.make_grid(img, normalize=True, scale_each=True)
+        #        img = log_output[:, i, :, :].unsqueeze(1)  # add a channel dimension
+        #        img_grid = torchvision.utils.make_grid(img, normalize=true, scale_each=true)
         #        self.logger.experiment.add_image(f'output_image_{i}', img_grid, self.global_step)
 
         #if self.logger:
-        #    img_grid = torchvision.utils.make_grid(log_output, normalize=False, scale_each=False)
+        #    img_grid = torchvision.utils.make_grid(log_output, normalize=false, scale_each=false)
         #    self.logger.experiment.add_image('output_images', img_grid, self.global_step)
 
 
@@ -185,19 +185,19 @@ class RECURRENT(L.LightningModule):
         
         plot_image(x, y, y_pred, self.output_seq, (self.output_size, self.output_size), self.input_seq, self.path_save) 
 
-        self.log('valid_loss', loss, batch_size = self.batch_size, on_step=True,
-                 on_epoch=True, sync_dist= True)
+        self.log('valid_loss', loss, batch_size = self.batch_size, on_step=true,
+                 on_epoch=true, sync_dist= true)
 
-        measures = {"valid_MSE":self.mse, "valid_MAE":self.mae, "valid_emd":self.emd}
+        measures = {"valid_mse":self.mse, "valid_mae":self.mae, "valid_emd":self.emd}
         for current_key in measures.keys():
             score = measures[current_key](y_pred, y)
-            self.log(current_key, score, batch_size=self.batch_size, on_step=True,
-                    on_epoch=True, sync_dist=True)
+            self.log(current_key, score, batch_size=self.batch_size, on_step=true,
+                    on_epoch=true, sync_dist=true)
 
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
+        optimizer = torch.optim.adam(self.parameters(), lr=self.learning_rate)
         return optimizer
 
        

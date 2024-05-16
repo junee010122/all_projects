@@ -14,8 +14,8 @@ paths:
     dense_CNN_LSTM: /Users/june/Documents/results/RNNvsLSTM/dens_CNN_LSTM
 
 dataset:
-  input_seq: 5
-  output_seq: 2
+  input_seq: 10
+  output_seq: 5
   resize: 0.1
 
 arch:
