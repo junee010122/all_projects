@@ -4,6 +4,8 @@ import lightning as L
 from torchmetrics import MeanSquaredError, MeanAbsoluteError
 
 from utils.plots import plot_image
+from IPython import embed
+
 
 class ConvLSTMCell(nn.Module):
     def __init__(self, input_dim, hidden_dim, kernel_size, bias=True):
@@ -20,10 +22,12 @@ class ConvLSTMCell(nn.Module):
                               padding=self.padding,
                               bias=self.bias)
 
+
     def forward(self, input_tensor, cur_state):
 
         h_cur, c_cur = cur_state
         combined = torch.cat([input_tensor, h_cur], dim=1)
+        embed()
         combined_conv = self.conv(combined)
         cc_i, cc_f, cc_o, cc_g = torch.split(combined_conv, self.hidden_dim, dim=1)
         i = torch.sigmoid(cc_i)
@@ -65,7 +69,10 @@ class RecurrentConvLSTM(L.LightningModule):
         h2, c2 = self.conv_lstm2.init_hidden(batch_size, (height, width))
         h3, c3 = self.conv_lstm3.init_hidden(batch_size, (height, width))
         h4, c4 = self.conv_lstm4.init_hidden(batch_size, (height, width))
-    
+        
+        
+
+
         outputs = []
         for t in range(seq_len):
             x_t = x[:, t, :, :, :]

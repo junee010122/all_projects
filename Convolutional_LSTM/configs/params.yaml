@@ -1,0 +1,49 @@
+
+system:
+  num_workers: 1
+  gpus:
+    strategy: auto
+    num_devices: 1
+    accelerator: cpu
+
+paths:
+  data: /Users/june/Documents/data/CNT2/Images_test
+  results:
+    # 0 : ResNet50
+    # 1 : CNN+LSTM
+    # 2 : ResNet18
+    # 3 : ResNet34
+    model_1: /Users/june/Documents/results/Conv_LSTM/Model1
+    model_2: /Users/june/Documents/results/Conv_LSTM/Model2
+    model_3: /Users/june/Documents/results/Conv_LSTM/Model3
+    model_4: /Users/june/Documents/results/Conv_LSTM/Model4
+    model_5: /Users/june/Documents/results/Conv_LSTM/Model5
+    model_0: /Users/june/Documents/results/Conv_LSTM/Model0
+
+dataset:
+  input_seq: 3
+  output_seq: 2
+  resize: 0.1
+
+arch:
+  batch_size: 1
+  learning_rate: 0.005
+  num_epochs: 100
+  teacher_forcing: 0
+
+model:
+  # model type for encoder
+  # lstm_config for handling input data
+  #   0 - teacher forcing
+  #   1 - non teacher forcing : grab previous output
+  #   2 - non teacher forcing : grab zeros
+  model_type: 0
+  lstm_config: 1
+  slice: 1
+  input_size: 96100
+  hidden_size: 32
+  output_size: 96100
+  num_layers: 3
+  
+
+
