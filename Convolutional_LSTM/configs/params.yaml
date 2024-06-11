@@ -41,7 +41,7 @@ model:
   lstm_config: 1
   slice: 1
   input_size: 96100
-  hidden_size: 32
+  hidden_size: 256
   output_size: 96100
   num_layers: 3
   

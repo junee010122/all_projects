@@ -64,6 +64,7 @@ def run_experiment(params):
     
     # Train & Evaluate Model
     model.train()
+    embed()
     trainer.fit(model=model, train_dataloaders=train_data, val_dataloaders=valid_data)
     
 
